@@ -1,4 +1,5 @@
 mod directory;
+mod generator;
 
 use clap::{Args, Parser, Subcommand};
 
@@ -41,9 +42,21 @@ fn main() {
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
-        Commands::Generate {} => {
-            println!("Generating...");
-        }
+        Commands::Generate {} => generate(),
         _ => {}
+    }
+}
+
+fn generate() {
+    let directory = directory::RepositoryDirectory::new(None);
+    match {
+        directory.generate_index()
+    } {
+        Ok(data) => {
+            println!("Found this data: {:?}", data);
+        },
+        Err(error) => {
+            eprintln!("Error while generating index: {}", error);
+        }
     }
 }

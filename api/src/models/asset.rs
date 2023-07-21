@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
+use crate::models::Named;
 
 // Path: assets/{author}/{name}/asset.toml
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Asset {
     pub author : String,
     pub name : String,
@@ -18,7 +19,7 @@ pub struct Asset {
     pub website : Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Version {
     pub name : String,
     pub changes : String,
@@ -28,9 +29,21 @@ pub struct Version {
 }
 
 // Path: assets/{author}/author.toml
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Author {
     pub name : String,
     pub email : String,
     pub links : Vec<String>,
+}
+
+impl Named for Asset {
+    fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Named for Author {
+    fn name(&self) -> &str {
+        &self.name
+    }
 }
