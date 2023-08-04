@@ -11,3 +11,4 @@ api = { path = "../api" }
 toml = "0.7.6"
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
+serde_json = "1"

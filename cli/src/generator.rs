@@ -1,6 +1,6 @@
 use thiserror::Error;
 use api::models::RepositoryData;
-use crate::directory::{AssetDirectory, ModelDirectory, ModelError, RepositoryDirectory};
+use crate::directory::{ModelDirectory, ModelError, RepositoryDirectory};
 
 #[derive(Error, Debug)]
 pub enum GeneratorError {

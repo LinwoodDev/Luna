@@ -44,4 +44,8 @@ impl RepositoryData {
     pub fn from_index(data : &str) -> Result<RepositoryData, serde_json::Error> {
         serde_json::from_str(data)
     }
+
+    pub fn to_index(&self) -> serde_json::Result<String> {
+        serde_json::to_string(&self)
+    }
 }

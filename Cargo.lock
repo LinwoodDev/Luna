@@ -66,6 +66,7 @@ dependencies = [
  "api",
  "clap",
  "serde",
+ "serde_json",
  "thiserror",
  "toml",
 ]
