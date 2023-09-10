@@ -1,5 +1,5 @@
 use thiserror::Error;
-use api::models::RepositoryData;
+use luna_api::models::RepositoryData;
 use crate::directory::{ModelDirectory, ModelError, RepositoryDirectory};
 
 #[derive(Error, Debug)]

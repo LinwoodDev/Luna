@@ -3,9 +3,8 @@ use std::path::PathBuf;
 use serde::de::DeserializeOwned;
 use thiserror::Error;
 use toml::de;
-use api::models::asset::{Asset, Author};
-use api::models::{Named, RepositoryInfo};
-use crate::directory::ModelError::{ModelFileNotFound};
+use luna_api::models::{asset::{Asset, Author}, Named, RepositoryInfo};
+use crate::directory::ModelError::ModelFileNotFound;
 
 #[derive(Error, Debug)]
 pub enum ModelError {

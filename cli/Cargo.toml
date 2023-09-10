@@ -1,5 +1,5 @@
 [package]
-name = "assetsystem_server"
+name = "luna_cli"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-api = { path = "../api" }
+luna_api = { path = "../api" }
 toml = "0.7.6"
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
