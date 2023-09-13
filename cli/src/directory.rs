@@ -85,7 +85,7 @@ impl RepositoryDirectory {
 
 impl ModelDirectory<RepositoryInfo> for RepositoryDirectory {
     fn data_path(&self) -> PathBuf {
-        self.0.join("data")
+        self.0.to_path_buf()
     }
 
     fn name(&self) -> Option<String> {

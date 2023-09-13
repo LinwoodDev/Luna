@@ -3,6 +3,8 @@ pub mod asset;
 use asset::*;
 use serde::{Deserialize, Serialize};
 
+const FILE_VERSION : u8 = 0;
+
 pub trait Named {
     fn name(&self) -> &str;
 }
@@ -13,6 +15,7 @@ pub struct RepositoryData {
     pub authors : Vec<Author>,
     #[serde(flatten)]
     pub info : RepositoryInfo,
+    pub file_version : u8,
 }
 
 impl Named for RepositoryData {
@@ -38,6 +41,7 @@ impl Named for RepositoryInfo {
 impl RepositoryData {
     pub fn new() -> RepositoryData {
         RepositoryData {
+            file_version: FILE_VERSION,
             ..Default::default()
         }
     }
