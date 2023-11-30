@@ -1,0 +1,19 @@
+html {
+    --primary-color: #e3ad23; 
+    --primary-color-text: #000000;
+}
+.navbar {
+    display: flex;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar-title {
+    flex-grow: 1;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 0.5rem;
+    margin: 0;
+}
+

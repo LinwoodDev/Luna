@@ -1,4 +1,5 @@
 mod directory;
+mod docs;
 mod generator;
 
 use std::fs::File;
@@ -21,6 +22,7 @@ enum Commands {
         /// The path where the index file should get generated. Default to: "index.json"
         path : Option<String>,
     },
+    Docs,
 }
 
 #[derive(Args)]
