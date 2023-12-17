@@ -12,4 +12,5 @@ toml = "0.8"
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 serde_json = "1"
-handlebars = { version = "4", features = ["dir_source"]}
+handlebars = { version = "4", features = ["rust-embed"] }
+rust-embed = { version = "8", features = ["include-exclude"] }
