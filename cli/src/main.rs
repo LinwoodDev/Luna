@@ -58,10 +58,10 @@ fn main() {
 }
 
 fn docs(path: Option<String>, index: Option<String>) {
-    let index = index.unwrap_or(String::from("index.json"));
+    let index = index.unwrap_or(format!("{}/index.json", path.clone().unwrap_or(".".to_string())));
     let data = RepositoryData::from_index(
         std::fs::read_to_string(&index)
-            .expect("Could not read index file")
+            .expect(&format!("Could not read index file {}", &index))
             .as_ref(),
     )
     .expect("Could not parse index file");
@@ -76,7 +76,10 @@ fn docs(path: Option<String>, index: Option<String>) {
 }
 
 fn generate(path: Option<String>) {
-    let path = path.unwrap_or(String::from("index.json"));
+    if let Some(path) = &path {
+        std::fs::create_dir_all(&path).expect("Could not create directory");
+    }
+    let path = format!("{}/index.json", path.unwrap_or(".".to_string()));
     let directory = directory::RepositoryDirectory::new(None);
     match { directory.generate_index() } {
         Ok(data) => {

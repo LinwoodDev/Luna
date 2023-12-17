@@ -12,8 +12,8 @@ pub enum ModelError {
     IoError(#[from] io::Error),
     #[error(transparent)]
     TomlError(#[from] de::Error),
-    #[error("Model file not found")]
-    ModelFileNotFound,
+    #[error("Model file not found (expected {0:?})")]
+    ModelFileNotFound(Option<PathBuf>),
     #[error("Model name not valid (expected {expected:?}, found {found:?})")]
     NotValidName { expected: Option<String>, found: String },
 }
@@ -29,13 +29,17 @@ pub trait ModelDirectory<T>
     fn file_path(&self) -> PathBuf {
         self.data_path().join("config.toml")
     }
+    fn content_path(&self) -> PathBuf {
+        self.data_path().join("content")
+    }
     fn name(&self) -> Option<String>;
     fn model(&self) -> Result<T, ModelError> {
+        let file = self.file_path();
         if !self.is_valid() {
-            return Err(ModelFileNotFound);
+            return Err(ModelFileNotFound(Some(file)));
         }
 
-        let data = std::fs::read_to_string(self.file_path())?;
+        let data = std::fs::read_to_string(file)?;
         let model: T = toml::from_str(&data)?;
         if self.name().map(|name| name != model.name()).unwrap_or(false) {
             return Err(ModelError::NotValidName {
@@ -62,20 +66,27 @@ impl RepositoryDirectory {
     }
 
     pub fn authors(&self) -> Result<Vec<String>, io::Error> {
-        let mut assets = Vec::new();
-        for entry in self.data_path().read_dir()? {
+        let mut authors = Vec::new();
+        let content = self.content_path();
+        if !content.exists() {
+            return Ok(authors);
+        }
+        for entry in content.read_dir()? {
             let Ok(entry) = entry else {
                 continue;
             };
+            if !entry.path().is_dir() {
+                continue;
+            }
             let path = entry.path();
             let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
 
             if path.is_dir() {
-                assets.push(file_name);
+                authors.push(file_name);
             }
         }
 
-        Ok(assets)
+        Ok(authors)
     }
 
     pub fn author(&self, name: &str) -> AuthorDirectory {
@@ -98,7 +109,11 @@ pub struct AuthorDirectory<'a> (&'a RepositoryDirectory, String);
 impl AuthorDirectory<'_> {
     pub fn assets(&self) -> Result<Vec<String>, io::Error> {
         let mut assets = Vec::new();
-        for entry in self.data_path().read_dir()? {
+        let path = self.assets_path();
+        if !path.exists() {
+            return Ok(assets);
+        }
+        for entry in path.read_dir()? {
             let Ok(entry) = entry else {
                 continue;
             };
@@ -113,6 +128,10 @@ impl AuthorDirectory<'_> {
         Ok(assets)
     }
 
+    pub fn assets_path(&self) -> PathBuf {
+        self.data_path().join("assets")
+    }
+
     pub fn asset(&self, name: &str) -> AssetDirectory {
         AssetDirectory(self, name.to_owned())
     }
@@ -120,7 +139,7 @@ impl AuthorDirectory<'_> {
 
 impl ModelDirectory<Author> for AuthorDirectory<'_> {
     fn data_path(&self) -> PathBuf {
-        self.0.data_path().join(&self.1)
+        self.0.content_path().join(&self.1)
     }
 
     fn name(&self) -> Option<String> {
@@ -130,32 +149,9 @@ impl ModelDirectory<Author> for AuthorDirectory<'_> {
 
 pub struct AssetDirectory<'a> (&'a AuthorDirectory<'a>, String);
 
-impl AssetDirectory<'_> {
-    pub fn assets_path(&self) -> PathBuf {
-        self.data_path().join("assets")
-    }
-
-    pub fn is_valid(&self) -> bool {
-        self.data_path().is_dir()
-    }
-
-    pub fn get_asset_path(&self, name: &str) -> Option<PathBuf> {
-        let path = self.assets_path().join(name);
-        // If path is file and assets_path is parent of path
-        if !path.is_file() || !path.starts_with(self.assets_path()) {
-            return None;
-        }
-        Some(path)
-    }
-
-    pub fn has_asset(&self, name: &str) -> bool {
-        self.get_asset_path(name).is_some()
-    }
-}
-
 impl ModelDirectory<Asset> for AssetDirectory<'_> {
     fn data_path(&self) -> PathBuf {
-        self.0.data_path().join(&self.1)
+        self.0.assets_path().join(&self.1)
     }
 
     fn name(&self) -> Option<String> {

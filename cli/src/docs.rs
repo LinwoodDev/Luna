@@ -1,8 +1,8 @@
-use std::{fs, path::Path, io::{self, Write}};
+use std::{fs, path::Path, io::Write};
 
-use handlebars::{Handlebars, TemplateError, Context};
+use handlebars::{Handlebars, TemplateError};
 use luna_api::models::RepositoryData;
-use serde_json::json;
+use serde_json::{json, Value};
 use thiserror::Error;
 use rust_embed::RustEmbed;
 
@@ -31,6 +31,18 @@ pub fn generate_docs(data: &RepositoryData, output : String) -> Result<(), DocsE
     render_static("index", data, &hb, &output)?;
     render_static("search", data, &hb, &output)?;
 
+
+    for author in data.authors.iter() {
+        fs::create_dir_all(format!("{}/{}", output, author.name))?;
+    }
+    for asset in data.assets.iter() {
+        let context: &Value = &json!({
+            "asset": asset,
+            "info": data.info
+        });
+        render_dynamic("asset", &format!("{}/{}", asset.author, asset.name), &hb, &output, context)?;
+    }
+
     for file in Public::iter() {
         let path = file.as_ref();
         let content = Public::get(path).unwrap();
@@ -47,11 +59,16 @@ pub fn generate_docs(data: &RepositoryData, output : String) -> Result<(), DocsE
 }
 
 fn render_static(name : &str, data: &RepositoryData, hb: &Handlebars, output : &str) -> Result<(), DocsError> {
-    let context = &json!({
+    let context: &Value = &json!({
         "info": data.info
     });
-    let rendered = hb.render(&format!("templates/{}.hbs",name), context)?;
-    std::fs::write(format!("{}/{}.html", output, name), rendered)?;
-    println!("Rendered {} at {}/{}.html", name, output, name);
+    render_dynamic(name, name, hb, output, context)
+}
+
+fn render_dynamic(name : &str, output_name : &str, hb: &Handlebars, output : &str, context: &Value) -> Result<(), DocsError> {
+    let rendered = hb.render(&format!("templates/{}.hbs",name), &context)?;
+    fs::write(format!("{}/{}.html", output, output_name), rendered)?;
+    println!("Rendered {} at {}/{}.html", name, output, output_name);
     Ok(())
+
 }

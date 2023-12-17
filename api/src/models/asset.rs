@@ -1,15 +1,15 @@
 use serde::{Deserialize, Serialize};
 use crate::models::Named;
 
-// Path: assets/{author}/{name}/asset.toml
+// Path: content/{author}/{name}/asset.toml
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Asset {
     pub author : String,
     pub name : String,
     pub id : String,
     pub tags : Vec<String>,
-    pub thumbnail_url : String,
-    pub preview_urls : Vec<String>,
+    pub thumbnail_url : Option<String>,
+    pub preview_urls : Option<Vec<String>>,
     pub current_version : Version,
     pub previous_versions : Vec<Version>,
     pub summary : Option<String>,
@@ -28,7 +28,7 @@ pub struct Version {
     pub blake3 : Option<String>,
 }
 
-// Path: assets/{author}/author.toml
+// Path: content/{author}/author.toml
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Author {
     pub name : String,
