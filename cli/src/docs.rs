@@ -24,6 +24,8 @@ struct Templates;
 #[folder = "assets/public"]
 struct Public;
 
+const ASSET_PAGES: [&str; 2] = ["index", "changes"];
+
 pub fn generate_docs(data: &RepositoryData, output : String) -> Result<(), DocsError> {
     let mut hb = Handlebars::new();
     hb.register_embed_templates::<Templates>()?;
@@ -40,7 +42,10 @@ pub fn generate_docs(data: &RepositoryData, output : String) -> Result<(), DocsE
             "asset": asset,
             "info": data.info
         });
-        render_dynamic("asset", &format!("{}/{}", asset.author, asset.name), &hb, &output, context)?;
+        fs::create_dir_all(format!("{}/{}/{}", output, &asset.author, &asset.name))?;
+        for page in ASSET_PAGES {
+            render_dynamic(&format!("asset/{}", &page), &format!("{}/{}/{}", &asset.author, &asset.name, &page), &hb, &output, context)?;
+        }
     }
 
     for file in Public::iter() {

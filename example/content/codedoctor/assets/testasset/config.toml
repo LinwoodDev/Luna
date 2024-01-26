@@ -1,4 +1,13 @@
 name = "testasset"
-author = "obiwan"
+author = "codedoctor"
 id = "LEL"
 tags = ["test", "asset"]
+
+previous_versions = []
+
+[current_version]
+name = "1.0"
+changes = "Nothing"
+download_url = "https://example.com"
+sha256 = "test"
+

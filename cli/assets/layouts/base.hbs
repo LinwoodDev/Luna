@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{> title}}</title>
-    <link rel="stylesheet" href="{{info.root}}/assets/css/style.css">
+    <link rel="stylesheet" href="{{info.root}}/style.css">
+    <link rel="stylesheet" href="{{info.root}}/custom.css">
 </head>
 <body>
-{{> layouts/navbar}}
+{{> layouts/navbar.hbs}}
 {{> @partial-block }}
 </body>
 </html>

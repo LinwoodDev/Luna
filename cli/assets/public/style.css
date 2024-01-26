@@ -30,9 +30,23 @@ html, body {
 .item-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1em;
 }
 
 .item-list-entry {
     list-style-type: none;
+}
+
+.button {
+    background-color: var(--primary-color);
+    color: var(--primary-color-text);
+    border: 0;
+    padding: 1em 0.5em;
+    border-radius: 1em;
+    text-decoration: none;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
 }

@@ -5,12 +5,14 @@
   <div class="container">
     <ul class="item-list">
         {{#each asset.versions}}
-            <li clas="item-list-entry">
-                <h2>{{this.name}}</h2>
-                <a href="{{this.download_url}}">Download</a>
+            <li class="item-list-entry">
+                <div class="header">
+                    <h2>{{this.name}}</h2>
+                    <a class="button" href="{{this.download_url}}">Download</a>
+                </div>
                 <p>{{this.changes}}</p>
             </li>
         {{/each}}
     </ul>
   </div>
-{{/layouts/base.hbs}}
+{{/layouts/asset.hbs}}
