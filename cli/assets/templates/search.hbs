@@ -1,0 +1,8 @@
+{{#> layouts/base.hbs}}
+    {{#*inline "title"}}{{info.name}} | Luna{{/inline}}
+    <div class="container">
+        <h1>Search results for <code id="search-query"></code></h1>
+        <div id="search-results"></div>
+    </div>
+    <script src="{{info.root}}/search.js"></script>
+{{/layouts/base.hbs}}

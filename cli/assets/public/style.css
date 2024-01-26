@@ -2,6 +2,16 @@ html {
     --primary-color: #e3ad23; 
     --primary-color-text: #000000;
 }
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 .navbar {
     display: flex;
     width: 100%;
@@ -17,3 +27,12 @@ html {
     margin: 0;
 }
 
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.item-list-entry {
+    list-style-type: none;
+}

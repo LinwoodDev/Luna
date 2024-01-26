@@ -58,14 +58,18 @@ fn main() {
 }
 
 fn docs(path: Option<String>, index: Option<String>) {
-    let index = index.unwrap_or(format!("{}/index.json", path.clone().unwrap_or(".".to_string())));
+    let index = index.unwrap_or(format!(
+        "{}/index.json",
+        path.clone().unwrap_or(".".to_string())
+    ));
     let data = RepositoryData::from_index(
         std::fs::read_to_string(&index)
             .expect(&format!("Could not read index file {}", &index))
             .as_ref(),
     )
     .expect("Could not parse index file");
-    match { docs::generate_docs(&data, path.unwrap_or(".".to_string())) } {
+    let result = docs::generate_docs(&data, path.unwrap_or(".".to_string()));
+    match result {
         Ok(_) => {
             println!("Successfully generated docs.");
         }
@@ -77,11 +81,12 @@ fn docs(path: Option<String>, index: Option<String>) {
 
 fn generate(path: Option<String>) {
     if let Some(path) = &path {
-        std::fs::create_dir_all(&path).expect("Could not create directory");
+        std::fs::create_dir_all(path).expect("Could not create directory");
     }
     let path = format!("{}/index.json", path.unwrap_or(".".to_string()));
     let directory = directory::RepositoryDirectory::new(None);
-    match { directory.generate_index() } {
+    let result = directory.generate_index();
+    match result {
         Ok(data) => {
             let mut file = File::create(&path).expect("Cannot create file");
             file.write_all(data.to_index().expect("Could not generate json").as_ref())

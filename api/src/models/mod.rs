@@ -3,7 +3,7 @@ pub mod asset;
 use asset::*;
 use serde::{Deserialize, Serialize};
 
-const FILE_VERSION : u8 = 0;
+const FILE_VERSION: u8 = 0;
 
 pub trait Named {
     fn name(&self) -> &str;
@@ -11,11 +11,11 @@ pub trait Named {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RepositoryData {
-    pub assets : Vec<Asset>,
-    pub authors : Vec<Author>,
+    pub assets: Vec<Asset>,
+    pub authors: Vec<Author>,
     #[serde(flatten)]
-    pub info : RepositoryInfo,
-    pub file_version : u8,
+    pub info: RepositoryInfo,
+    pub file_version: u8,
 }
 
 impl Named for RepositoryData {
@@ -26,9 +26,9 @@ impl Named for RepositoryData {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RepositoryInfo {
-    pub name : String,
-    pub description : String,
-    pub tags : Vec<String>,
+    pub name: String,
+    pub description: String,
+    pub tags: Vec<String>,
 }
 
 impl Named for RepositoryInfo {
@@ -37,7 +37,6 @@ impl Named for RepositoryInfo {
     }
 }
 
-
 impl RepositoryData {
     pub fn new() -> RepositoryData {
         RepositoryData {
@@ -45,7 +44,7 @@ impl RepositoryData {
             ..Default::default()
         }
     }
-    pub fn from_index(data : &str) -> Result<RepositoryData, serde_json::Error> {
+    pub fn from_index(data: &str) -> Result<RepositoryData, serde_json::Error> {
         serde_json::from_str(data)
     }
 

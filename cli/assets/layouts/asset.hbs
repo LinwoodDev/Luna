@@ -1,0 +1,11 @@
+{{#> layouts/base.hbs}}
+    {{#*inline "title"}}{{asset.name}} | Luna{{/inline}}
+    <div class="container">
+        <h1>{{asset.name}}</h1>
+        <li>
+            <ul><a href="{{info.root}}/assets/{{asset.name}}/changes">Home</a></ul>
+            <ul><a href="{{info.root}}/assets/{{asset.name}}/changes">Changes</a></ul>
+        </li>
+    </div>
+    {{> @partial-block }}
+{{/layouts/base.hbs}}

@@ -1,0 +1,16 @@
+{{#> layouts/asset.hbs}}
+  <div class="container">
+    <p>{{asset.current_version.changes}}</p>
+  </div>
+  <div class="container">
+    <ul class="item-list">
+        {{#each asset.versions}}
+            <li clas="item-list-entry">
+                <h2>{{this.name}}</h2>
+                <a href="{{this.download_url}}">Download</a>
+                <p>{{this.changes}}</p>
+            </li>
+        {{/each}}
+    </ul>
+  </div>
+{{/layouts/base.hbs}}

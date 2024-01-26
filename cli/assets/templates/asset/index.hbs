@@ -1,0 +1,7 @@
+{{#> layouts/asset.hbs}}
+    <div class="container">
+        <a class="button" href="{{asset.current_version.download_url}}">Download {{asset.current_version.name}}</a>
+        <p>{{asset.description}}</p>
+        <p>{{asset.current_version.changes}}</p>
+    </div>
+{{/layouts/base.hbs}}
