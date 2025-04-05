@@ -9,11 +9,11 @@ use rust_embed::RustEmbed;
 #[derive(Error, Debug)]
 pub enum DocsError {
     #[error("Template invalid: {0}")]
-    TemplateError(#[from] TemplateError),
+    Template(#[from] TemplateError),
     #[error("Render failed: {0}")]
-    RenderError(#[from] handlebars::RenderError),
+    Render(#[from] handlebars::RenderError),
     #[error("IO failed: {0}")]
-    IoError(#[from] std::io::Error),
+    Io(#[from] std::io::Error),
 }  
 
 #[derive(RustEmbed)]

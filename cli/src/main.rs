@@ -74,7 +74,7 @@ fn docs(path: Option<String>, index: Option<String>, page_size: usize) {
     ));
     let data = RepositoryData::from_index(
         std::fs::read_to_string(&index)
-            .expect(&format!("Could not read index file {}", &index))
+            .unwrap_or_else(|_| panic!("Could not read index file {}", &index))
             .as_ref(),
     )
     .expect("Could not parse index file");
