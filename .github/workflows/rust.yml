@@ -19,14 +19,14 @@ jobs:
       run:
         working-directory: ${{ matrix.project }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
+    - uses: actions/checkout@v4
     - uses: pnpm/action-setup@v4
       if: matrix.project == 'cli'
       with:
         version: 10
         package_json_file: ${{ matrix.project }}/package.json
+    - name: Build
+      run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
     - name: Run clippy

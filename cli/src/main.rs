@@ -17,12 +17,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Inspect the generated index file
     Index(InspectArgs),
+    /// Inspect the current repository
     Get(InspectArgs),
+    /// Generate an index file out of the current repository
     Generate {
         /// The path where the index file should get generated. Default to: "index.json"
         path: Option<String>,
     },
+    /// Generate documentation for the current index file
     Docs {
         /// The path where the docs should get generated. Default to: "docs"
         path: Option<String>,
