@@ -24,6 +24,7 @@ jobs:
       if: matrix.project == 'cli'
       with:
         package_json_file: ${{ matrix.project }}/package.json
+        run_install: true
     - name: Build
       run: cargo build --verbose
     - name: Run tests

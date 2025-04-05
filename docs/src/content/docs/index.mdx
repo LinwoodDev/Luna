@@ -1,0 +1,36 @@
+---
+title: Linwood Luna
+description: Universal Secure Web-Socket Application Messaging Proxy for Linwood Apps
+template: splash
+hero:
+  tagline: Universal Secure Web-Socket Application Messaging Proxy for Linwood Apps
+  image:
+    file: /public/logo.svg
+  actions:
+    - text: Download
+      link: /downloads/
+      icon: download
+      variant: primary
+    - text: Getting started
+      link: /docs/v1/intro/
+      icon: document
+---
+
+import { LinkCard, Card, CardGrid } from '@astrojs/starlight/components';
+
+## Principles
+
+<CardGrid stagger>
+	<Card title="Cross platform" icon="laptop">
+		You can start the server on windows, linux or mac.
+	</Card>
+	<Card title="Universal" icon="puzzle">
+		The server can be used for any app that implements the luna protocol. The protocol is simple and easy to implement.
+	</Card>
+	<Card title="Customizable" icon="pencil">
+		The server has a settings file that can be used to customize the server to your needs. Additionally you can use the server as a library in your own project.
+	</Card>
+	<Card title="Open API" icon="open-book">
+		All api endpoints are documented and can be used to create your own client or server.
+	</Card>
+</CardGrid>
