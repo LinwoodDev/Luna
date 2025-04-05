@@ -63,6 +63,21 @@ pub fn generate_docs(data: &RepositoryData, output : String) -> Result<(), DocsE
     Ok(())
 }
 
+fn copy_public(output : &str) -> Result<(), DocsError> {
+    for file in Public::iter() {
+        let path = file.as_ref();
+        let content = Public::get(path).unwrap();
+        let path = format!("{}/{}", output, path);
+        let path = Path::new(&path);
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        let mut file = fs::File::create(path)?;
+        file.write_all(&content.data)?;
+    }
+    Ok(())
+}
+
 fn render_static(name : &str, data: &RepositoryData, hb: &Handlebars, output : &str) -> Result<(), DocsError> {
     let context: &Value = &json!({
         "info": data.info

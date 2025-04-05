@@ -50,9 +50,6 @@ pub trait ModelDirectory<T>
 
         Ok(model)
     }
-    fn valid_model(&self) -> bool {
-        self.is_valid() && self.model().is_ok()
-    }
 }
 
 impl RepositoryDirectory {

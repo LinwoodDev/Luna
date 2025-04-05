@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@linwooddev/style':
+        specifier: ^0.4.2
+        version: 0.4.2
+
+packages:
+
+  '@linwooddev/style@0.4.2':
+    resolution: {integrity: sha512-ZYDdLnl7D8ttJ9lA3BdZtBw7pCkfwF3EEJ3bCmTibP/10ESQl+RPEUbmKbihudYA+6bX65bZIr4Yaimyh7i15w==}
+
+snapshots:
+
+  '@linwooddev/style@0.4.2': {}

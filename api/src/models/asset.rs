@@ -1,5 +1,6 @@
 use crate::models::Named;
 use serde::{Deserialize, Serialize};
+use toml::value::Datetime;
 
 // Path: content/{author}/{name}/asset.toml
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -23,6 +24,7 @@ pub struct Asset {
 pub struct Version {
     pub name: String,
     pub changes: String,
+    pub published: Option<Datetime>,
     pub download_url: String,
     pub sha256: String,
     pub blake3: Option<String>,
