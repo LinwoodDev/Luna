@@ -27,12 +27,7 @@ enum Commands {
         path: Option<String>,
     },
     /// Generate documentation for the current index file
-    Docs {
-        /// The path where the docs should get generated. Default to: "docs"
-        path: Option<String>,
-        /// The path of the index file. Default to: "index.json"
-        index: Option<String>,
-    },
+    Docs(DocsArgs),
 }
 
 #[derive(Args)]
@@ -49,6 +44,17 @@ enum InspectCommands {
     Assets,
 }
 
+#[derive(Args)]
+struct DocsArgs {
+    /// The path where the docs should get generated. Default to: "docs"
+    path: Option<String>,
+    /// The path of the index file. Default to: "index.json"
+    index: Option<String>,
+    /// The page size of lists. Default to: 20
+    #[arg(long, default_value_t = 20)]
+    page_size: usize,
+}
+
 fn main() {
     let cli = Cli::parse();
 
@@ -56,12 +62,12 @@ fn main() {
     // matches just as you would the top level cmd
     match &cli.command {
         Commands::Generate { path } => generate(path.to_owned()),
-        Commands::Docs { path, index } => docs(path.to_owned(), index.to_owned()),
+        Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size),
         _ => {}
     }
 }
 
-fn docs(path: Option<String>, index: Option<String>) {
+fn docs(path: Option<String>, index: Option<String>, page_size: usize) {
     let index = index.unwrap_or(format!(
         "{}/index.json",
         path.clone().unwrap_or(".".to_string())
@@ -72,7 +78,7 @@ fn docs(path: Option<String>, index: Option<String>) {
             .as_ref(),
     )
     .expect("Could not parse index file");
-    let result = docs::generate_docs(&data, path.unwrap_or(".".to_string()));
+    let result = docs::generate_docs(&data, path.unwrap_or(".".to_string()), page_size);
     match result {
         Ok(_) => {
             println!("Successfully generated docs.");

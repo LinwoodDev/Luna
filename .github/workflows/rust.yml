@@ -23,7 +23,6 @@ jobs:
     - uses: pnpm/action-setup@v4
       if: matrix.project == 'cli'
       with:
-        version: 10
         package_json_file: ${{ matrix.project }}/package.json
     - name: Build
       run: cargo build --verbose
