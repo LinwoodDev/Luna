@@ -15,13 +15,6 @@ Please report any bug you find [here](https://github.com/LinwoodDev/Luna/issues/
 
 If you have a feature that you would like to see added, please open an issue [here](https://github.com/LinwoodDev/Luna/issues/new?assignees=CodeDoctorDE&labels=enhancement%2Ctriage&template=feature_request.yml&title=%5BFeature+request%5D%3A+).
 
-## Test nightly builds
-
-Nightly builds are not production ready and need to be tested.
-Please report any bugs in the github issues section.
-
-Read more about it [here](https://luna.linwood.dev/nightly).
-
 ## Write documentation
 
 Documentation is important for users to understand the program and its features.
@@ -41,25 +34,16 @@ All stable documentation can be found in the `versioned_docs` folder.
 
 Fork the project and create a pull request to add your documentation to the `develop` branch.
 
-## Translate
-
-Crowdin is a service that allows you to translate the documentation and the app.
-Click [here](https://translate.linwood.dev/luna) to see the project and start translating.
-If you have a new language to add, please contact me.
-
 ## Code
 
-This project is written in [Dart](https://dart.dev/).
-The server source code can be found in the `server` folder.
+This project is written in [Rust](https://www.rust-lang.org/).
+The cli source code can be found in the `cli` folder.
 
 To get started, run:
 
 ```bash
-cd app
-dart pub get
-dart run
+cd cli
+cargo build
 ```
-
-All subdirectories are documented in the `server/README.md` file.
 
 Fork the project and create a pull request to add your code to the `develop` branch.
