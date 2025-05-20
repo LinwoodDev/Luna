@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 handlebars = { version = "6", optional = true }
+serde = "1"
 
 [features]
 handlebars = ["dep:handlebars"]

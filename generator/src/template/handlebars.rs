@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use handlebars::Handlebars;
+use serde::Serialize;
 
 use super::TemplateEngine;
 
@@ -16,8 +17,8 @@ impl HandlebarsTemplateEngine<'_> {
     }
 }
 
-impl TemplateEngine for HandlebarsTemplateEngine<'_> {
-    fn render(&self, template: &str, context: &str) -> Result<String, Box<dyn Error>> {
+impl<T: Serialize> TemplateEngine<T> for HandlebarsTemplateEngine<'_> {
+    fn render(&self, template: &str, context: &T) -> Result<String, Box<dyn Error>> {
         let rendered = self.registry.render(template, &context.to_owned())?;
         Ok(rendered)
     }

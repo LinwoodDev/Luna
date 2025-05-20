@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::io::Error;
-use std::iter::Map;
 use std::sync::Arc;
 use std::hash::{Hash, Hasher};
 
