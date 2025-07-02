@@ -5,8 +5,8 @@ use super::TemplateEngine;
 
 pub struct SimpleTemplateEngine;
 
-impl<T : Serialize> TemplateEngine<T> for SimpleTemplateEngine {
-    fn render(&self, template: &str, _context: &T) -> Result<String, Box<dyn Error>> {
+impl TemplateEngine for SimpleTemplateEngine {
+    fn render<T: Serialize>(&self, template: &str, _context: &T) -> Result<String, Box<dyn Error>> {
         Ok(template.to_owned())
     }
 }

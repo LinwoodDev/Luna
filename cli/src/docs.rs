@@ -1,20 +1,20 @@
-use std::{fs, path::Path, io::Write};
+use std::{fs, io::Write, path::Path};
 
-use handlebars::{Handlebars, TemplateError};
 use luna_api::models::RepositoryData;
-use serde_json::{json, Value};
-use thiserror::Error;
+use luna_generator::{route::LunaRouter, template::handlebars::HandlebarsTemplateEngine};
 use rust_embed::RustEmbed;
+use serde_json::{Value, json};
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum DocsError {
     #[error("Template invalid: {0}")]
-    Template(#[from] TemplateError),
+    Template(Box<dyn std::error::Error>),
     #[error("Render failed: {0}")]
     Render(#[from] handlebars::RenderError),
     #[error("IO failed: {0}")]
     Io(#[from] std::io::Error),
-}  
+}
 
 #[derive(RustEmbed)]
 #[folder = "assets"]
@@ -26,35 +26,68 @@ struct Public;
 
 const ASSET_PAGES: [&str; 2] = ["index", "changes"];
 
-pub fn generate_docs(data: &RepositoryData, output: String, page_size: usize) -> Result<(), DocsError> {
-    let _ = page_size;
-    let mut hb = Handlebars::new();
-    hb.register_embed_templates::<Templates>()?;
-    
-    render_static("index", data, &hb, &output)?;
-    render_static("search", data, &hb, &output)?;
+fn wrap_template_error<T>(e: Result<T, Box<dyn std::error::Error>>) -> Result<T, DocsError> {
+    e.map_err(|e| DocsError::Template(e))
+}
 
-
-    for author in data.authors.iter() {
-        fs::create_dir_all(format!("{}/{}", output, author.name))?;
+pub fn generate_docs(
+    data: &RepositoryData,
+    output: String,
+    page_size: usize,
+) -> Result<(), DocsError> {
+    let output_path = Path::new(&output);
+    if output_path.exists() {
+        fs::remove_dir_all(&output_path)?;
     }
+    let _ = page_size;
+    let mut router = LunaRouter::new();
+    let root = "/".to_string();
+    let mut engine = HandlebarsTemplateEngine::new();
+    engine
+        .registry()
+        .register_embed_templates::<Templates>()
+        .map_err(|e| DocsError::Template(Box::new(e)))?;
+    router.add_simple_route("index.json", serde_json::to_string(data).unwrap());
+    let context: &Value = &json!({
+        "info": data.info,
+        "root": &root,
+    });
+    wrap_template_error(router.add_context_route(
+        "index.html",
+        &engine,
+        &"templates/index.hbs".to_string(),
+        context,
+    ))?;
+    wrap_template_error(router.add_context_route(
+        "search.html",
+        &engine,
+        &"templates/search.hbs".to_string(),
+        context,
+    ))?;
+
     for asset in data.assets.iter() {
         let context: &Value = &json!({
             "asset": asset,
-            "info": data.info
+            "info": data.info,
+            "root": &root,
         });
-        fs::create_dir_all(format!("{}/{}/{}", output, &asset.author, &asset.name))?;
         for page in ASSET_PAGES {
-            render_dynamic(&format!("asset/{}", &page), &format!("{}/{}/{}", &asset.author, &asset.name, &page), &hb, &output, context)?;
+            wrap_template_error(router.add_context_route(
+                &format!("{}/{}/asset/{}.html", asset.author, asset.name, page),
+                &engine,
+                format!("templates/asset/{}.hbs", page).as_str(),
+                context,
+            ))?;
         }
     }
 
     copy_public(&output)?;
+    router.generate(&output)?;
 
     Ok(())
 }
 
-fn copy_public(output : &str) -> Result<(), DocsError> {
+fn copy_public(output: &str) -> Result<(), DocsError> {
     for file in Public::iter() {
         let path = file.as_ref();
         let content = Public::get(path).unwrap();
@@ -67,19 +100,4 @@ fn copy_public(output : &str) -> Result<(), DocsError> {
         file.write_all(&content.data)?;
     }
     Ok(())
-}
-
-fn render_static(name : &str, data: &RepositoryData, hb: &Handlebars, output : &str) -> Result<(), DocsError> {
-    let context: &Value = &json!({
-        "info": data.info
-    });
-    render_dynamic(name, name, hb, output, context)
-}
-
-fn render_dynamic(name : &str, output_name : &str, hb: &Handlebars, output : &str, context: &Value) -> Result<(), DocsError> {
-    let rendered = hb.render(&format!("templates/{}.hbs",name), &context)?;
-    fs::write(format!("{}/{}.html", output, output_name), rendered)?;
-    println!("Rendered {} at {}/{}.html", name, output, output_name);
-    Ok(())
-
 }

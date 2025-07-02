@@ -1,10 +1,13 @@
+use crate::directory::ModelError::ModelFileNotFound;
+use luna_api::models::{
+    Named, RepositoryInfo,
+    asset::{Asset, Author},
+};
+use serde::de::DeserializeOwned;
 use std::io;
 use std::path::PathBuf;
-use serde::de::DeserializeOwned;
 use thiserror::Error;
 use toml::de;
-use luna_api::models::{asset::{Asset, Author}, Named, RepositoryInfo};
-use crate::directory::ModelError::ModelFileNotFound;
 
 #[derive(Error, Debug)]
 pub enum ModelError {
@@ -15,13 +18,18 @@ pub enum ModelError {
     #[error("Model file not found (expected {0:?})")]
     ModelFileNotFound(Option<PathBuf>),
     #[error("Model name not valid (expected {expected:?}, found {found:?})")]
-    NotValidName { expected: Option<String>, found: String },
+    NotValidName {
+        expected: Option<String>,
+        found: String,
+    },
 }
 
 pub struct RepositoryDirectory(pub PathBuf);
 
 pub trait ModelDirectory<T>
-    where T: DeserializeOwned + Named + Default {
+where
+    T: DeserializeOwned + Named + Default,
+{
     fn data_path(&self) -> PathBuf;
     fn is_valid(&self) -> bool {
         self.data_path().is_dir()
@@ -41,7 +49,11 @@ pub trait ModelDirectory<T>
 
         let data = std::fs::read_to_string(file)?;
         let model: T = toml::from_str(&data)?;
-        if self.name().map(|name| name != model.name()).unwrap_or(false) {
+        if self
+            .name()
+            .map(|name| name != model.name())
+            .unwrap_or(false)
+        {
             return Err(ModelError::NotValidName {
                 expected: self.name(),
                 found: model.name().to_owned(),
@@ -101,7 +113,7 @@ impl ModelDirectory<RepositoryInfo> for RepositoryDirectory {
     }
 }
 
-pub struct AuthorDirectory<'a> (&'a RepositoryDirectory, String);
+pub struct AuthorDirectory<'a>(&'a RepositoryDirectory, String);
 
 impl AuthorDirectory<'_> {
     pub fn assets(&self) -> Result<Vec<String>, io::Error> {
@@ -144,7 +156,7 @@ impl ModelDirectory<Author> for AuthorDirectory<'_> {
     }
 }
 
-pub struct AssetDirectory<'a> (&'a AuthorDirectory<'a>, String);
+pub struct AssetDirectory<'a>(&'a AuthorDirectory<'a>, String);
 
 impl ModelDirectory<Asset> for AssetDirectory<'_> {
     fn data_path(&self) -> PathBuf {

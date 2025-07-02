@@ -23,8 +23,10 @@ enum Commands {
     Get(InspectArgs),
     /// Generate an index file out of the current repository
     Generate {
-        /// The path where the index file should get generated. Default to: "index.json"
-        path: Option<String>,
+        /// The path where the index file should get generated.
+        #[arg(default_value = "output/index.json")]
+        path: String,
+
     },
     /// Generate documentation for the current index file
     Docs(DocsArgs),
@@ -46,10 +48,12 @@ enum InspectCommands {
 
 #[derive(Args)]
 struct DocsArgs {
-    /// The path where the docs should get generated. Default to: "docs"
-    path: Option<String>,
-    /// The path of the index file. Default to: "index.json"
-    index: Option<String>,
+    /// The path where the docs should get generated.
+    #[arg(default_value = "output/docs")]
+    path: String,
+    /// The path of the index file.
+    #[arg(default_value = "output/index.json")]
+    index: String,
     /// The page size of lists. Default to: 20
     #[arg(long, default_value_t = 20)]
     page_size: usize,
@@ -67,18 +71,14 @@ fn main() {
     }
 }
 
-fn docs(path: Option<String>, index: Option<String>, page_size: usize) {
-    let index = index.unwrap_or(format!(
-        "{}/index.json",
-        path.clone().unwrap_or(".".to_string())
-    ));
+fn docs(path: String, index: String, page_size: usize) {
     let data = RepositoryData::from_index(
         std::fs::read_to_string(&index)
             .unwrap_or_else(|_| panic!("Could not read index file {}", &index))
             .as_ref(),
     )
     .expect("Could not parse index file");
-    let result = docs::generate_docs(&data, path.unwrap_or(".".to_string()), page_size);
+    let result = docs::generate_docs(&data, path, page_size);
     match result {
         Ok(_) => {
             println!("Successfully generated docs.");
@@ -89,11 +89,9 @@ fn docs(path: Option<String>, index: Option<String>, page_size: usize) {
     }
 }
 
-fn generate(path: Option<String>) {
-    if let Some(path) = &path {
-        std::fs::create_dir_all(path).expect("Could not create directory");
-    }
-    let path = format!("{}/index.json", path.unwrap_or(".".to_string()));
+fn generate(path: String) {
+    let path = std::path::PathBuf::from(path);
+    std::fs::create_dir_all(&path.parent().unwrap_or(&path)).expect("Could not create directory");
     let directory = directory::RepositoryDirectory::new(None);
     let result = directory.generate_index();
     match result {

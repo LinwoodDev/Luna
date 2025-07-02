@@ -1,6 +1,6 @@
-use thiserror::Error;
-use luna_api::models::RepositoryData;
 use crate::directory::{ModelDirectory, ModelError, RepositoryDirectory};
+use luna_api::models::RepositoryData;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum GeneratorError {

@@ -9,16 +9,20 @@ pub struct HandlebarsTemplateEngine<'a> {
     registry: Handlebars<'a>,
 }
 
-impl HandlebarsTemplateEngine<'_> {
+impl<'a> HandlebarsTemplateEngine<'a> {
     pub fn new() -> Self {
         let mut registry = Handlebars::new();
         registry.set_strict_mode(true);
         HandlebarsTemplateEngine { registry }
     }
+
+    pub fn registry(&mut self) -> &mut Handlebars<'a> {
+        &mut self.registry
+    }
 }
 
-impl<T: Serialize> TemplateEngine<T> for HandlebarsTemplateEngine<'_> {
-    fn render(&self, template: &str, context: &T) -> Result<String, Box<dyn Error>> {
+impl TemplateEngine for HandlebarsTemplateEngine<'_> {
+    fn render<T: Serialize>(&self, template: &str, context: &T) -> Result<String, Box<dyn Error>> {
         let rendered = self.registry.render(template, &context.to_owned())?;
         Ok(rendered)
     }
