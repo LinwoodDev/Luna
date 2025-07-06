@@ -98,7 +98,7 @@ impl RepositoryDirectory {
         Ok(authors)
     }
 
-    pub fn author(&self, name: &str) -> AuthorDirectory {
+    pub fn author(&self, name: &str) -> AuthorDirectory<'_> {
         AuthorDirectory(self, name.to_owned())
     }
 }
@@ -141,7 +141,7 @@ impl AuthorDirectory<'_> {
         self.data_path().join("assets")
     }
 
-    pub fn asset(&self, name: &str) -> AssetDirectory {
+    pub fn asset(&self, name: &str) -> AssetDirectory<'_> {
         AssetDirectory(self, name.to_owned())
     }
 }

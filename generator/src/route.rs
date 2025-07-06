@@ -65,17 +65,17 @@ impl LunaRouter {
 
     pub fn generate(&self, directory: &str) -> Result<(), IoError> {
         for (path, content) in self.render_all() {
-            let output = format!("{}/{}", directory, path);
+            let output = format!("{directory}/{path}");
             std::fs::create_dir_all(std::path::Path::new(&output).parent().unwrap()).map_err(
                 |e| {
                     IoError::new(
                         e.kind(),
-                        format!("Failed to create directory for file {}: {}", path, e),
+                        format!("Failed to create directory for file {path}: {e}"),
                     )
                 },
             )?;
             std::fs::write(output, content).map_err(|e| {
-                IoError::new(e.kind(), format!("Failed to write to file {}: {}", path, e))
+                IoError::new(e.kind(), format!("Failed to write to file {path}: {e}"))
             })?;
         }
         Ok(())

@@ -21,9 +21,15 @@ impl<'a> HandlebarsTemplateEngine<'a> {
     }
 }
 
+impl<'a> Default for HandlebarsTemplateEngine<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TemplateEngine for HandlebarsTemplateEngine<'_> {
     fn render<T: Serialize>(&self, template: &str, context: &T) -> Result<String, Box<dyn Error>> {
-        let rendered = self.registry.render(template, &context.to_owned())?;
+        let rendered = self.registry.render(template, &context)?;
         Ok(rendered)
     }
 }

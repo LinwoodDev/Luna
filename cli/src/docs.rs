@@ -27,7 +27,7 @@ struct Public;
 const ASSET_PAGES: [&str; 2] = ["index", "changes"];
 
 fn wrap_template_error<T>(e: Result<T, Box<dyn std::error::Error>>) -> Result<T, DocsError> {
-    e.map_err(|e| DocsError::Template(e))
+    e.map_err(DocsError::Template)
 }
 
 pub fn generate_docs(
@@ -37,7 +37,7 @@ pub fn generate_docs(
 ) -> Result<(), DocsError> {
     let output_path = Path::new(&output);
     if output_path.exists() {
-        fs::remove_dir_all(&output_path)?;
+        fs::remove_dir_all(output_path)?;
     }
     let _ = page_size;
     let mut router = LunaRouter::new();
@@ -55,13 +55,13 @@ pub fn generate_docs(
     wrap_template_error(router.add_context_route(
         "index.html",
         &engine,
-        &"templates/index.hbs".to_string(),
+        "templates/index.hbs",
         context,
     ))?;
     wrap_template_error(router.add_context_route(
         "search.html",
         &engine,
-        &"templates/search.hbs".to_string(),
+        "templates/search.hbs",
         context,
     ))?;
 
@@ -75,7 +75,7 @@ pub fn generate_docs(
             wrap_template_error(router.add_context_route(
                 &format!("{}/{}/asset/{}.html", asset.author, asset.name, page),
                 &engine,
-                format!("templates/asset/{}.hbs", page).as_str(),
+                &format!("templates/asset/{page}.hbs"),
                 context,
             ))?;
         }
@@ -91,7 +91,7 @@ fn copy_public(output: &str) -> Result<(), DocsError> {
     for file in Public::iter() {
         let path = file.as_ref();
         let content = Public::get(path).unwrap();
-        let path = format!("{}/{}", output, path);
+        let path = format!("{output}/{path}");
         let path = Path::new(&path);
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;

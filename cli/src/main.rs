@@ -84,14 +84,14 @@ fn docs(path: String, index: String, page_size: usize) {
             println!("Successfully generated docs.");
         }
         Err(error) => {
-            eprintln!("Error while generating docs: {}", error);
+            eprintln!("Error while generating docs: {error}");
         }
     }
 }
 
 fn generate(path: String) {
     let path = std::path::PathBuf::from(path);
-    std::fs::create_dir_all(&path.parent().unwrap_or(&path)).expect("Could not create directory");
+    std::fs::create_dir_all(path.parent().unwrap_or(&path)).expect("Could not create directory");
     let directory = directory::RepositoryDirectory::new(None);
     let result = directory.generate_index();
     match result {
@@ -99,10 +99,10 @@ fn generate(path: String) {
             let mut file = File::create(&path).expect("Cannot create file");
             file.write_all(data.to_index().expect("Could not generate json").as_ref())
                 .expect("Could not write file");
-            println!("Successfully generated index file at {:?}.", path);
+            println!("Successfully generated index file at {path:?}.");
         }
         Err(error) => {
-            eprintln!("Error while generating index: {}", error);
+            eprintln!("Error while generating index: {error}");
         }
     }
 }
