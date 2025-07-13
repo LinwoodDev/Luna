@@ -3,7 +3,7 @@ use std::{fs, io::Write, path::Path};
 use luna_api::models::RepositoryData;
 use luna_generator::{route::LunaRouter, template::handlebars::HandlebarsTemplateEngine};
 use rust_embed::RustEmbed;
-use serde_json::{Value, json};
+use serde_json::{Value, json, Map};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -48,10 +48,11 @@ pub fn generate_docs(
         .register_embed_templates::<Templates>()
         .map_err(|e| DocsError::Template(Box::new(e)))?;
     router.add_simple_route("index.json", serde_json::to_string(data).unwrap());
-    let context: &Value = &json!({
-        "info": data.info,
-        "root": &root,
-    });
+    let mut base_context = Map::new();
+    base_context.insert("info".to_string(), json!(data.info));
+    base_context.insert("root".to_string(), json!(root));
+    base_context.insert("luna".to_string(), json!({ "name": env!("CARGO_PKG_NAME"), "version": env!("CARGO_PKG_VERSION") }));
+    let context = &Value::Object(base_context.clone());
     wrap_template_error(router.add_context_route(
         "index.html",
         &engine,
@@ -66,11 +67,9 @@ pub fn generate_docs(
     ))?;
 
     for asset in data.assets.iter() {
-        let context: &Value = &json!({
-            "asset": asset,
-            "info": data.info,
-            "root": &root,
-        });
+        let mut asset_context = base_context.clone();
+        asset_context.insert("asset".to_string(), json!(asset));
+        let context = &Value::Object(asset_context);
         for page in ASSET_PAGES {
             wrap_template_error(router.add_context_route(
                 &format!("{}/{}/asset/{}.html", asset.author, asset.name, page),

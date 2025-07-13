@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{> title}}</title>
-    <link rel="stylesheet" href="{{root}}/style.css">
-    <link rel="stylesheet" href="{{root}}/custom.css">
+    <link rel="stylesheet" href="{{root}}main.css">
+    <link rel="stylesheet" href="{{root}}style.css">
+    <link rel="stylesheet" href="{{root}}custom.css">
+    <meta name="generator" content="{{luna.name}} {{luna.version}}">
 </head>
+
 <body>
-{{> layouts/navbar.hbs}}
-{{> @partial-block }}
+    {{> @partial-block }}
 </body>
+
 </html>

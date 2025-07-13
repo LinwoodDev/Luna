@@ -1,0 +1,13 @@
+{{#> layouts/base.hbs}}
+<header class="navbar-lg sticky">
+    <span class="navbar-title">{{info.name}} | Luna</span>
+    <nav class="navbar-items">
+        <a class="btn secondary" href="#button">Search</a>
+        <div class="h-divider"></div>
+        <a class="btn secondary" href="https://github.com/LinwoodDev/Luna">GitHub</a>
+    </nav>
+</header>
+<div class="container-lg">
+    {{> @partial-block }}
+</div>
+{{/layouts/base.hbs}}
