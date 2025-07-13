@@ -1,7 +1,11 @@
 {{#> layouts/main.hbs}}
-    {{#*inline "title"}}{{info.name}} | Luna{{/inline}}
-    <div class="container">
+{{#*inline "title"}}{{info.name}} | Luna{{/inline}}
+<div class="container">
+    <div class="big-section">
         <h1>Home</h1>
         <p>{{info.description}}</p>
     </div>
+    <hr class="mv-md">
+    {{> components/search.hbs }}
+</div>
 {{/layouts/main.hbs}}

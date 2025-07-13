@@ -1,8 +1,21 @@
-{{#> layouts/base.hbs}}
-    {{#*inline "title"}}{{info.name}} | Luna{{/inline}}
-    <div class="container">
-        <h1>Search results for <code id="search-query"></code></h1>
-        <div id="search-results"></div>
-    </div>
-    <script src="{{root}}/search.js"></script>
-{{/layouts/base.hbs}}
+{{#> layouts/main.hbs}}
+{{#*inline "title"}}{{info.name}} | Luna{{/inline}}
+{{> components/search.hbs }}
+<script src="search.js"></script>
+<noscript>
+    <p>JavaScript is required to use the search functionality.</p>
+</noscript>
+<div id="search-results" style="display:none" class="container">
+    <h2>Search Results</h2>
+    <p id="search-status">Loading...</p>
+    <ul id="search-list" class="col justify-center wrap gap-sm">
+        <li class="card paper" id="search-item-template" style="display:none">
+            <a class="search-link no-decoration text" href="#">
+                <p class="h4 search-title"></p>
+                <p class="search-description"></p>
+            </a>
+        </li>
+    </ul>
+</div>
+</div>
+{{/layouts/main.hbs}}

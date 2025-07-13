@@ -1,11 +1,15 @@
-{{#> layouts/base.hbs}}
+{{#> layouts/main.hbs}}
 {{#*inline "title"}}{{asset.name}} | Luna{{/inline}}
-<div class="container">
-    <h1>{{asset.name}}</h1>
-    <li>
-        <ul><a href="{{root}}/{{asset.author}}/{{asset.name}}">Home</a></ul>
-        <ul><a href="{{root}}/{{asset.author}}/{{asset.name}}/changes.html">Changes</a></ul>
-    </li>
+<div class="pb-sm card paper mb-md gap-xs p-sm">
+    <div class="row wrap align-start justify-between">
+        <h1 class="flex">{{asset.name}}</h1>
+        <a class="btn primary" href="{{asset.current_version.download_url}}">Download {{asset.current_version.name}}</a>
+    </div>
+    <p class="m-none">by <a href="{{asset.author}}">{{asset.author}}</a></p>
+    <ul class="row wrap gap-xs">
+        <li><a class="btn" href="/{{asset.author}}/{{asset.name}}">Home</a></li>
+        <li><a class="btn" href="/{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>
+    </ul>
 </div>
 {{> @partial-block }}
-{{/layouts/base.hbs}}
+{{/layouts/main.hbs}}

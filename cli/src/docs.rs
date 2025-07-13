@@ -72,7 +72,7 @@ pub fn generate_docs(
         let context = &Value::Object(asset_context);
         for page in ASSET_PAGES {
             wrap_template_error(router.add_context_route(
-                &format!("{}/{}/asset/{}.html", asset.author, asset.name, page),
+                &format!("{}/{}/{}.html", asset.author, asset.name, page),
                 &engine,
                 &format!("templates/asset/{page}.hbs"),
                 context,
