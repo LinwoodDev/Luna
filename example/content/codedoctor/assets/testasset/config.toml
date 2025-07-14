@@ -1,13 +1,46 @@
 name = "testasset"
 author = "codedoctor"
 id = "LEL"
-tags = ["test", "asset"]
+tags = ["theme", "note-taking", "components", "styles", "color-palette"]
+summary = "A UI component and style pack for note-taking apps featuring headings, paragraphs, graphs, and more"
+description = """
 
-previous_versions = []
+This pack provides a collection of reusable components and styles tailored for note-taking applications.
+
+## Includes
+
+- Heading and paragraph styles for clear typography
+- Graph components for data visualization
+- List and card components for organizing content
+- Callout and highlight styles for emphasis
+
+Easily integrate these elements to build rich and consistent note interfaces.
+"""
+
+sponsor = "Nonsense Sponsor"
+source = "https://nonsense.example.com"
+website = "https://nonsense.example.com"
+
+[[previous_versions]]
+name = "2.0"
+changes = "Massively nonsensical upgrade"
+download_url = "https://nonsense.example.com/v2.0/download"
+sha256 = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+
+[[previous_versions]]
+name = "1.5"
+changes = "Added additional layers of absurdity"
+download_url = "https://nonsense.example.com/v1.5/download"
+sha256 = "cafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe"
+
+[[previous_versions]]
+name = "1.0"
+changes = "Initial nonsense release"
+download_url = "https://nonsense.example.com/v1.0/download"
+sha256 = "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd"
 
 [current_version]
 name = "1.0"
 changes = "Nothing"
 download_url = "https://example.com"
 sha256 = "test"
-

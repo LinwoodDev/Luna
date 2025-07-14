@@ -3,12 +3,12 @@
 <div class="pb-sm card paper mb-md gap-xs p-sm">
     <div class="row wrap align-start justify-between">
         <h1 class="flex">{{asset.name}}</h1>
-        <a class="btn primary" href="{{asset.current_version.download_url}}">Download {{asset.current_version.name}}</a>
+        <a class="btn primary {{#if (eq activeTab 'download')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/download.html">Download {{asset.current_version.name}}</a>
     </div>
     <p class="m-none">by <a href="{{asset.author}}">{{asset.author}}</a></p>
     <ul class="row wrap gap-xs">
-        <li><a class="btn" href="/{{asset.author}}/{{asset.name}}">Home</a></li>
-        <li><a class="btn" href="/{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>
+        <li><a class="btn {{#if (eq activeTab 'home')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}">Home</a></li>
+        <li><a class="btn {{#if (eq activeTab 'changes')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>
     </ul>
 </div>
 {{> @partial-block }}

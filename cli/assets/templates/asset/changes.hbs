@@ -1,16 +1,19 @@
-{{#> layouts/asset.hbs}}
-  <div class="container">
-    <p>{{asset.current_version.changes}}</p>
+{{#> layouts/asset.hbs activeTab="changes"}}
+  <div class="card paper">
+    <h2>{{asset.current_version.name}}</h2>
+    <div>{{{md asset.current_version.changes}}}</div>
   </div>
+  <hr>
   <div class="container">
-    <ul class="item-list">
+    <ul class="col gap-xs">
         {{#each asset.previous_versions}}
-            <li class="item-list-entry">
-                <div class="header">
+            <li class="card paper">
+                <div class="row wrap align-start justify-between">
                     <h2>{{this.name}}</h2>
                     <a class="button" href="{{this.download_url}}">Download</a>
                 </div>
-                <p>{{this.changes}}</p>
+                <hr>
+                <div>{{{md this.changes}}}</div>
             </li>
         {{/each}}
     </ul>

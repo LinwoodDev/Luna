@@ -1,0 +1,78 @@
+{{! filepath: c:\Users\wusel\Documents\Projects\Luna\cli\assets\templates\asset\download.hbs }}
+{{#> layouts/asset.hbs activeTab="download"}}
+<div class="card paper">
+  <h1>{{version.name}}</h1>
+  <p>SHA-256 checksum: <code>{{version.sha256}}</code></p>
+  <button id="downloadBtn" class="btn secondary" data-url="{{version.download_url}}"
+    data-sha="{{version.sha256}}">Retry</button>
+  <div id="progressContainer" style="display:none; margin-top:1rem;">
+    <p id="status">Preparing download...</p>
+    <progress id="progress" value="0" max="100" style="width:100%;"></progress>
+  </div>
+  <noscript>
+    <p>Please enable JavaScript to download the asset.</p>
+    <p>Alternatively, you can download it directly from <a href="{{version.download_url}}">this link</a>.</p>
+    <p>Make sure to verify the SHA-256 checksum <code>{{version.sha256}}</code> after downloading.</p>
+  </noscript>
+  <div>{{{md version.changes}}}</div>
+</div>
+
+<script>
+  const btn = document.getElementById('downloadBtn');
+  const status = document.getElementById('status');
+  const progressBar = document.getElementById('progress');
+  const container = document.getElementById('progressContainer');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    container.style.display = 'block';
+    status.textContent = 'Starting download...';
+    try {
+      const url = btn.getAttribute('data-url');
+      const expectedHash = btn.getAttribute('data-sha');
+      const resp = await fetch(url);
+      const reader = resp.body.getReader();
+      const contentLength = parseInt(resp.headers.get('Content-Length')) || 0;
+      let received = 0;
+      const chunks = [];
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        const percent = contentLength ? Math.floor((received / contentLength) * 100) : 0;
+        progressBar.value = percent;
+        status.textContent = `Downloaded ${percent}%`;
+      }
+      const buffer = new Uint8Array(received);
+      let position = 0;
+      chunks.forEach(chunk => {
+        buffer.set(chunk, position);
+        position += chunk.length;
+      });
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      if (hashHex !== expectedHash) {
+        status.textContent = 'Checksum mismatch!';
+        progressBar.value = 0;
+        return;
+      }
+      status.textContent = 'Checksum verified, preparing file...';
+      const blob = new Blob([buffer]);
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = url.split('/').pop();
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      status.textContent = 'Download complete!';
+    } catch (error) {
+      status.textContent = 'Error during download: ' + error.message;
+      console.error('Download error:', error);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  window.addEventListener('load', () => btn.click());
+</script>
+{{/layouts/asset.hbs}}

@@ -1,17 +1,18 @@
 use std::{fs, io::Write, path::Path};
 
-use luna_api::models::RepositoryData;
+use handlebars::handlebars_helper;
+use luna_api::models::{RepositoryData, asset::Version};
 use luna_generator::{route::LunaRouter, template::handlebars::HandlebarsTemplateEngine};
 use rust_embed::RustEmbed;
-use serde_json::{Value, json, Map};
+use serde_json::{Map, Value, json};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum DocsError {
     #[error("Template invalid: {0}")]
     Template(Box<dyn std::error::Error>),
-    #[error("Render failed: {0}")]
-    Render(#[from] handlebars::RenderError),
+    #[error("Render {0} failed: {1}")]
+    Render(String, Box<dyn std::error::Error>),
     #[error("IO failed: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -26,10 +27,6 @@ struct Public;
 
 const ASSET_PAGES: [&str; 2] = ["index", "changes"];
 
-fn wrap_template_error<T>(e: Result<T, Box<dyn std::error::Error>>) -> Result<T, DocsError> {
-    e.map_err(DocsError::Template)
-}
-
 pub fn generate_docs(
     data: &RepositoryData,
     output: String,
@@ -39,44 +36,77 @@ pub fn generate_docs(
     if output_path.exists() {
         fs::remove_dir_all(output_path)?;
     }
+
     let _ = page_size;
     let mut router = LunaRouter::new();
     let root = "/".to_string();
     let mut engine = HandlebarsTemplateEngine::new();
+    handlebars_helper!(markdown_helper: |content : str| {
+        markdown::to_html_with_options(content, &markdown::Options::gfm()).unwrap_or(content.to_string())
+    });
+    engine
+        .registry()
+        .register_helper("md", Box::new(markdown_helper));
     engine
         .registry()
         .register_embed_templates::<Templates>()
         .map_err(|e| DocsError::Template(Box::new(e)))?;
-    router.add_simple_route("index.json", serde_json::to_string(data).unwrap());
+    let add_route = |router: &mut LunaRouter,
+                     path: &str,
+                     template: &str,
+                     context: &Value|
+     -> Result<(), DocsError> {
+        router
+            .add_context_route(path, &engine, template, context)
+            .map_err(|e| DocsError::Render(path.to_string(), e))
+    };
+    router.add_simple_route("index.json", data.to_index().unwrap());
     let mut base_context = Map::new();
     base_context.insert("info".to_string(), json!(data.info));
     base_context.insert("root".to_string(), json!(root));
-    base_context.insert("luna".to_string(), json!({ "name": env!("CARGO_PKG_NAME"), "version": env!("CARGO_PKG_VERSION") }));
+    base_context.insert(
+        "luna".to_string(),
+        json!({ "name": env!("CARGO_PKG_NAME"), "version": env!("CARGO_PKG_VERSION") }),
+    );
     let context = &Value::Object(base_context.clone());
-    wrap_template_error(router.add_context_route(
-        "index.html",
-        &engine,
-        "templates/index.hbs",
-        context,
-    ))?;
-    wrap_template_error(router.add_context_route(
-        "search.html",
-        &engine,
-        "templates/search.hbs",
-        context,
-    ))?;
+    add_route(&mut router, "index.html", "templates/index.hbs", context)?;
+    add_route(&mut router, "search.html", "templates/search.hbs", context)?;
 
     for asset in data.assets.iter() {
         let mut asset_context = base_context.clone();
         asset_context.insert("asset".to_string(), json!(asset));
         let context = &Value::Object(asset_context);
         for page in ASSET_PAGES {
-            wrap_template_error(router.add_context_route(
+            add_route(
+                &mut router,
                 &format!("{}/{}/{}.html", asset.author, asset.name, page),
-                &engine,
                 &format!("templates/asset/{page}.hbs"),
                 context,
-            ))?;
+            )?;
+            let mut build_download_page =
+                |path: &str, version: &Version| -> Result<(), DocsError> {
+                    let mut version_context = base_context.clone();
+                    version_context.insert("asset".to_string(), json!(asset));
+                    version_context.insert("version".to_string(), json!(version));
+                    let v_ctx = &Value::Object(version_context);
+                    add_route(&mut router, path, "templates/asset/download.hbs", v_ctx)?;
+                    Ok(())
+                };
+            build_download_page(
+                &format!("{}/{}/download.html", asset.author, asset.name),
+                &asset.current_version,
+            )?;
+            for version in
+                std::iter::once(&asset.current_version).chain(asset.previous_versions.iter())
+            {
+                build_download_page(
+                    &format!(
+                        "{}/{}/download/{}.html",
+                        asset.author, asset.name, version.name
+                    ),
+                    version,
+                )?;
+            }
         }
     }
 

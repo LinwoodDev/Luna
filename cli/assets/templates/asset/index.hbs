@@ -1,6 +1,9 @@
-{{#> layouts/asset.hbs}}
+{{#> layouts/asset.hbs activeTab="home"}}
     <div class="container">
-        <p>{{asset.description}}</p>
-        <p>{{asset.current_version.changes}}</p>
+        <div>{{{md asset.description}}}</div>
+        <div class="card paper">
+            <h2>{{asset.current_version.name}}</h2>
+            <div>{{{md asset.current_version.changes}}}</div>
+        </div>
     </div>
 {{/layouts/asset.hbs}}

@@ -1,0 +1,17 @@
+name = "another-testasset"
+author = "codedoctor"
+id = "LEL"
+tags = ["test", "asset"]
+summary = "An another test asset for demonstration"
+description = "This is a long description with details about the asset's functionality and usage."
+sponsor = "Some Sponsor"
+source = "https://github.com/CodeDoctorDE"
+website = "https://example.com/testasset"
+
+previous_versions = []
+
+[current_version]
+name = "1.0"
+changes = "Nothing"
+download_url = "https://example.com"
+sha256 = "test"
