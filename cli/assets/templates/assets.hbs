@@ -1,0 +1,28 @@
+{{#> layouts/main.hbs title="Assets" active_page="assets"}}
+<div class="container">
+    <div class="section">
+        <h1>Assets</h1>
+    </div>
+    <div class="section mt-md">
+        <ul class="col justify-center wrap gap-sm">
+            {{#each assets}}
+            {{> components/item.hbs href=(concat this.author "/" this.name) title=this.name description=this.summary }}
+            {{else}}
+            <li class="col justify-center align-center gap-sm">
+                <p class="text">No assets found.</p>
+            </li>
+            {{/each}}
+        </ul>
+        <div class="row justify-center align-center gap-sm mt-md wrap">
+            {{#if (gt current_page 1)}}
+            <a class="btn secondary"
+                href="{{#if (eq current_page 1)}}assets.html{{else}}assets/{{current_page}}.html{{/if}}">Back</a>
+            {{/if}}
+            <span class="text">Page {{current_page}} of {{last_page}}</span>
+            {{#if (lt current_page last_page)}}
+            <a class="btn secondary" href="assets/{{inc current_page}}.html">Next</a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+{{/layouts/main.hbs}}

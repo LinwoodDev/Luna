@@ -1,5 +1,4 @@
-{{#> layouts/main.hbs}}
-{{#*inline "title"}}{{asset.name}} | Luna{{/inline}}
+{{#> layouts/main.hbs title=asset.name active_page="" }}
 <div class="pb-sm card paper mb-md gap-xs p-sm">
     <div class="row wrap align-start justify-between">
         <h1 class="flex">{{asset.name}}</h1>

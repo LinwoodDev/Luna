@@ -1,0 +1,27 @@
+{{#> layouts/main.hbs active_page="" title=author.name}}
+<div class="container">
+    <div class="row wrap justify-center gap-lg align-start">
+        <div class="col max-w-xl card paper gap-xs">
+            <h1>{{author.name}}</h1>
+            <p class="text m-none">{{len assets}} {{#if (eq (len assets) 1)}}asset{{else}}assets{{/if}}</p>
+            <ul class="col">
+                {{#each author.links}}
+                <li>
+                    <a class="btn" href="{{this}}">{{this}}</a>
+                </li>
+                {{/each}}
+            </ul>
+        </div>
+        <div class="col flex min-w-md">
+            <h2>Assets</h2>
+            <ul class="col gap-sm">
+                {{#each assets}}
+                {{> components/item.hbs href=(concat this.author "/" this.name) title=this.name description=this.summary}}
+                {{else}}
+                <li>No assets found.</li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</div>
+{{/layouts/main.hbs}}

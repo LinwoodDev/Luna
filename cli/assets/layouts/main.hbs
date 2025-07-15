@@ -1,9 +1,12 @@
 {{#> layouts/base.hbs}}
+{{#*inline "title"}}{{title}} | {{info.name}}{{/inline}}
 <header class="navbar-lg sticky">
     <a href="./" class="navbar-title">{{info.name}} | Luna</a>
     <nav class="navbar-items">
-        <a class="btn secondary" href="./">Home</a>
-        <a class="btn secondary" href="search.html">Search</a>
+        <a class="btn secondary {{#if (eq active_page 'home')}}active{{/if}}" href="./">Home</a>
+        <a class="btn secondary {{#if (eq active_page 'assets')}}active{{/if}}" href="assets.html">Assets</a>
+        <a class="btn secondary {{#if (eq active_page 'authors')}}active{{/if}}" href="authors.html">Authors</a>
+        <a class="btn secondary {{#if (eq active_page 'search')}}active{{/if}}" href="search.html">Search</a>
         <div class="h-divider"></div>
         <a class="btn secondary" href="https://github.com/LinwoodDev/Luna">GitHub</a>
     </nav>

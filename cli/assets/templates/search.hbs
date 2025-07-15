@@ -1,5 +1,4 @@
-{{#> layouts/main.hbs}}
-{{#*inline "title"}}{{info.name}} | Luna{{/inline}}
+{{#> layouts/main.hbs title="Search" active_page="search"}}
 {{> components/search.hbs }}
 <script src="search.js"></script>
 <noscript>
@@ -8,13 +7,8 @@
 <div id="search-results" style="display:none" class="container">
     <h2>Search Results</h2>
     <p id="search-status">Loading...</p>
-    <ul id="search-list" class="col justify-center wrap gap-sm">
-        <li class="card paper" id="search-item-template" style="display:none">
-            <a class="search-link no-decoration text" href="#">
-                <p class="h4 search-title"></p>
-                <p class="search-description"></p>
-            </a>
-        </li>
+    <ul id="search-list" class="col gap-sm">
+        {{> components/item.hbs id="search-item-template" href="#" title="" description="" style="display:none" }}
     </ul>
 </div>
 </div>

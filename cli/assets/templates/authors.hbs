@@ -1,0 +1,28 @@
+{{#> layouts/main.hbs title="Authors" active_page="authors"}}
+<div class="container">
+    <div class="section">
+        <h1>Authors</h1>
+    </div>
+    <div class="section mt-md">
+        <ul class="col justify-center wrap gap-sm">
+            {{#each authors}}
+            {{> components/item.hbs href=(concat this.name) title=this.name description=this.email }}
+            {{else}}
+            <li class="col justify-center align-center gap-sm">
+                <p class="text">No authors found.</p>
+            </li>
+            {{/each}}
+        </ul>
+        <div class="row justify-center align-center gap-sm mt-md wrap">
+            {{#if (gt current_page 1)}}
+            <a class="btn secondary"
+                href="{{#if (eq current_page 1)}}authors.html{{else}}authors/{{current_page}}.html{{/if}}">Back</a>
+            {{/if}}
+            <span class="text">Page {{current_page}} of {{last_page}}</span>
+            {{#if (lt current_page last_page)}}
+            <a class="btn secondary" href="authors/{{inc current_page}}.html">Next</a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+{{/layouts/main.hbs}}

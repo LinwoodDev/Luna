@@ -11,14 +11,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // keep form inputs filled after submit
   document.getElementById('search-input').value = params.get('q') || '';
-  document.getElementById('search-authors').checked = includeAuthors;
-  document.getElementById('search-assets').checked = includeAssets;
-
   if (!query) {
     statusEl.textContent = 'Please enter a search term.';
     resultsSection.style.display = 'block';
     return;
   }
+  document.getElementById('search-authors').checked = includeAuthors;
+  document.getElementById('search-assets').checked = includeAssets;
 
   try {
     const res = await fetch('index.json');
