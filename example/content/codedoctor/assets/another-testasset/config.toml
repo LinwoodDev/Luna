@@ -13,5 +13,5 @@ previous_versions = []
 [current_version]
 name = "1.0"
 changes = "Nothing"
-download_url = "https://example.com"
-sha256 = "test"
+download_url = "/favicon.ico"
+sha256 = "bd3166d15db9bf183cb85087883019d2de69082db5ea9908531dbd3c227c9821"

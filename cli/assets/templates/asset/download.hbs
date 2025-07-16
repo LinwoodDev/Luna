@@ -53,7 +53,7 @@
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
       if (hashHex !== expectedHash) {
-        status.textContent = 'Checksum mismatch!';
+        status.textContent = `Checksum mismatch! Expected ${expectedHash}, got ${hashHex}.`;
         progressBar.value = 0;
         return;
       }
