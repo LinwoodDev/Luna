@@ -34,6 +34,9 @@ pub struct Version {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Author {
     pub name: String,
+    pub display_name: Option<String>,
+    pub avatar_url: Option<String>,
+    pub description: Option<String>,
     pub email: String,
     pub links: Vec<String>,
 }
@@ -47,5 +50,13 @@ impl Named for Asset {
 impl Named for Author {
     fn name(&self) -> &str {
         &self.name
+    }
+}
+
+impl Author {
+    pub fn display(&self) -> String {
+        self.display_name
+            .clone()
+            .unwrap_or_else(|| self.name.clone())
     }
 }

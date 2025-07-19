@@ -6,7 +6,7 @@
     <div class="section mt-md">
         <ul class="col justify-center wrap gap-sm">
             {{#each authors}}
-            {{> components/item.hbs href=(concat this.name) title=this.name description=this.email }}
+            {{> components/item.hbs href=(concat this.name) title=(display this) description=this.description }}
             {{else}}
             <li class="col justify-center align-center gap-sm">
                 <p class="text">No authors found.</p>

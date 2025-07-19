@@ -43,15 +43,25 @@ fn build_engine() -> Result<HandlebarsTemplateEngine<'static>, DocsError> {
             .collect::<Vec<&str>>()
             .join("")
     });
+    // First check display Some<String> and then name
+    handlebars_helper!(display: |named: Value| {
+        let v = named
+            .get("display_name")
+            .or_else(|| named.get("name"))
+            .unwrap_or(&named);
+        match v {
+            Value::String(s) => s.clone(),
+            other            => other.to_string(),
+        }
+    });
+    engine
+        .registry()
+        .register_helper("display", Box::new(display));
     engine
         .registry()
         .register_helper("concat", Box::new(concat));
-    engine
-        .registry()
-        .register_helper("inc", Box::new(inc));
-    engine
-        .registry()
-        .register_helper("dec", Box::new(dec));
+    engine.registry().register_helper("inc", Box::new(inc));
+    engine.registry().register_helper("dec", Box::new(dec));
     engine
         .registry()
         .register_embed_templates::<Templates>()
@@ -73,7 +83,7 @@ pub fn generate_docs(
     let mut router = LunaRouter::new();
     let root = "/".to_string();
     let engine = build_engine()?;
-    
+
     let add_route = |router: &mut LunaRouter,
                      path: &str,
                      template: &str,
@@ -108,12 +118,7 @@ pub fn generate_docs(
         } else {
             format!("assets/{i}.html")
         };
-        add_route(
-            &mut router,
-            &path,
-            "templates/assets.hbs",
-            context,
-        )?;
+        add_route(&mut router, &path, "templates/assets.hbs", context)?;
     }
 
     let author_pages = data.authors.chunks(page_size);
@@ -129,18 +134,21 @@ pub fn generate_docs(
         } else {
             format!("authors/{i}.html")
         };
-        add_route(
-            &mut router,
-            &path,
-            "templates/authors.hbs",
-            context,
-        )?;
+        add_route(&mut router, &path, "templates/authors.hbs", context)?;
     }
 
     for author in data.authors.iter() {
         let mut author_context = base_context.clone();
         author_context.insert("author".to_string(), json!(author));
-        author_context.insert("assets".to_string(), json!(data.assets.iter().filter(|a| a.author == author.name).collect::<Vec<_>>()));
+        author_context.insert(
+            "assets".to_string(),
+            json!(
+                data.assets
+                    .iter()
+                    .filter(|a| a.author == author.name)
+                    .collect::<Vec<_>>()
+            ),
+        );
         let context = &Value::Object(author_context);
         add_route(
             &mut router,

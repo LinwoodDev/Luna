@@ -37,6 +37,25 @@ Read more in the [documentation](https://luna.linwood.dev/docs/v1/intro).
 
 *but you can just implement the api in your own app!*
 
+## Current Status
+
+The basic CLI with the basic API and website is functional.
+The API is not yet stable, but the CLI is usable.
+
+Current todos:
+
+- [ ] Implement a bundling system to host assets in the docs
+  - [ ] Avatars
+  - [ ] Asset items
+- [ ] Sorting
+- [ ] More customization options
+  - [ ] Custom templates
+  - [ ] Custom navbar links
+  - [ ] Custom links on the resource page
+- [ ] Categories
+- [ ] More language library support
+  - [ ] Dart
+
 ---
 
 ## Contributing

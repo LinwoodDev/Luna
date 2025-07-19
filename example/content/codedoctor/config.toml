@@ -1,3 +1,6 @@
 name = "codedoctor"
+display_name = "Code Doctor"
+description = "German front- and backend developer with 💚"
+avatar_url = "https://avatars.githubusercontent.com/u/20452814?v=4"
 email = "codedoctor@linwood.dev"
 links = ["https://github.com/CodeDoctorDE"]
