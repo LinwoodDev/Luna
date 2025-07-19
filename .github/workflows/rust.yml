@@ -17,22 +17,60 @@ jobs:
       run:
         working-directory: ${{ matrix.project }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v4
-      if: matrix.project == 'cli'
-      with:
-        package_json_file: ${{ matrix.project }}/package.json
-        run_install: true
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      if: matrix.project == 'cli'
-      with:
-        node-version: 24
-        cache: 'pnpm'
-        cache-dependency-path: '${{ matrix.project }}/pnpm-lock.yaml'
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-    - name: Run clippy
-      run: cargo clippy --all-targets --all-features -- -D warnings
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        if: matrix.project == 'cli'
+        with:
+          package_json_file: ${{ matrix.project }}/package.json
+          run_install: true
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        if: matrix.project == 'cli'
+        with:
+          node-version: 24
+          cache: "pnpm"
+          cache-dependency-path: "${{ matrix.project }}/pnpm-lock.yaml"
+      - name: Build
+        run: cargo build --verbose --release
+      - name: Run tests
+        run: cargo test --verbose
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.project == 'cli'
+        with:
+          name: cli-artifacts
+          path: target/release/luna_cli.exe
+  demo:
+    runs-on: ubuntu-latest
+    needs: build
+    defaults:
+      run:
+        working-directory: example
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download CLI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-artifacts
+          path: example/luna_cli.exe
+      - name: Build index.json
+        run: |
+          ./luna_cli.exe generate
+      - name: Build docs
+        run: |
+          ./luna_cli.exe docs
+      - name: Deploy to SFTP
+        if: github.ref == 'refs/heads/develop'
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
+          SFTP_KEY: ${{ secrets.SFTP_KEY }}
+          SFTP_KNOWN_HOSTS: ${{secrets.SFTP_KNOWN_HOSTS}}
+        run: |
+          echo "$SFTP_KEY" > sftp_key
+          chmod 600 sftp_key
+          echo "$SFTP_KNOWN_HOSTS" > known_hosts
+          chmod 600 known_hosts
+          rsync -avz --delete -e "ssh -i sftp_key -o UserKnownHostsFile=known_hosts" output/docs/ $SFTP_USERNAME@$SFTP_HOST:/var/www/demo.luna.linwood
