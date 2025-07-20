@@ -2,19 +2,98 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{> title}}</title>
-    <base href="{{root}}">
-    <link rel="stylesheet" href="main.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="custom.css">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <meta name="generator" content="{{luna.name}} {{luna.version}}">
+    <base href="{{root}}" />
+
+    <!-- Your existing stylesheets -->
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="custom.css" />
+
+    <style>
+        @view-transition {
+            navigation: auto;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 
 <body>
-    {{> @partial-block }}
+    <div id="content">
+        {{> @partial-block }}
+    </div>
+
+    <script>
+        (function () {
+            const baseHref = document.querySelector('base')?.href || document.baseURI;
+            const contentEl = document.getElementById('content');
+
+            // Helper: load URL via fetch and extract #content HTML
+            async function fetchContent(url) {
+                const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const text = await res.text();
+                // parse and grab the new #content
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                return {
+                    html: doc.getElementById('content').innerHTML,
+                    title: doc.title,
+                };
+            }
+
+            // Handle navigation: fetch + swap + history
+            async function navigateTo(url) {
+                // Use View Transition API if available
+                const useVT = typeof document.startViewTransition === 'function';
+
+                const performSwap = async () => {
+                    try {
+                        const { html, title } = await fetchContent(url);
+                        contentEl.innerHTML = html;
+                        document.title = title;
+                    } catch (err) {
+                        console.error('Navigation error:', err);
+                        location.href = url; // fallback to full reload
+                    }
+                };
+
+                if (useVT) {
+                    document.startViewTransition(performSwap);
+                } else {
+                    await performSwap();
+                }
+            }
+
+            // Intercept all same-origin link clicks
+            document.body.addEventListener('click', e => {
+                const a = e.target.closest('a[href]');
+                if (!a) return;
+                const rawHref = a.getAttribute('href');
+                // ignore external links, anchors, or scripts
+                if (rawHref.startsWith('#') || a.target === '_blank') return;
+                const url = new URL(rawHref, baseHref);
+                console.log('Navigating to:', url.href, 'from:', location.href);
+                if (url.origin !== location.origin) return;
+
+                e.preventDefault();
+                history.pushState(null, '', url.href);
+                navigateTo(url.href);
+            });
+
+            // Handle back/forward buttons
+            window.addEventListener('popstate', () => {
+                navigateTo(location.href);
+            });
+        })();
+    </script>
 </body>
 
 </html>
