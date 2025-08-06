@@ -1,7 +1,10 @@
 {{#> layouts/main.hbs active_page="" title=author.name}}
 <div class="container">
     <div class="row wrap justify-center gap-lg align-start">
-        <div class="col max-w-xl card paper gap-xs">
+        <div class="col max-w-xl card paper gap-xs align-center">
+            {{#if author.avatar_url}}
+            <img class="w-sm" src="{{author.avatar_url}}" alt="{{author.name}} thumbnail">
+            {{/if}}
             <h1>{{display author}}</h1>
             <p class="text bold m-none text-center">{{len assets}} {{#if (eq (len assets) 1)}}asset{{else}}assets{{/if}}
             </p>
