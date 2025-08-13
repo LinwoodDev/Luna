@@ -88,7 +88,10 @@ impl RepositoryDirectory {
                 continue;
             }
             let path = entry.path();
-            let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+            let file_name = entry
+                .file_name()
+                .into_string()
+                .unwrap_or_else(|os_str| os_str.to_string_lossy().into_owned());
 
             if path.is_dir() {
                 authors.push(file_name);
@@ -127,7 +130,10 @@ impl AuthorDirectory<'_> {
                 continue;
             };
             let path = entry.path();
-            let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+            let Some(file_name) = path.file_name() else {
+                continue;
+            };
+            let file_name = file_name.to_string_lossy().to_string();
 
             if path.is_dir() {
                 assets.push(file_name);
