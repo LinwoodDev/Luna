@@ -32,6 +32,8 @@ Read more in the [documentation](https://luna.linwood.dev/docs/v1/intro).
 
 ## Official Apps
 
+Planned:
+
 - [Linwood Setonix](https://setonix.linwood.dev) to download packs
 - [Linwood Butterfly](https://butterfly.linwood.dev) to download packs
 
