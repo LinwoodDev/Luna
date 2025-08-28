@@ -1,5 +1,7 @@
 pub mod asset;
 
+use std::collections::HashMap;
+
 use asset::*;
 use serde::{Deserialize, Serialize};
 
@@ -27,8 +29,14 @@ impl Named for RepositoryData {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RepositoryInfo {
     pub name: String,
-    pub description: String,
+    pub summary: Option<String>,
+    pub description: Option<String>,
+    #[serde(default)]
     pub tags: Vec<String>,
+    pub imprint: Option<String>,
+    pub privacy: Option<String>,
+    #[serde(default)]
+    pub links: HashMap<String, String>,
 }
 
 impl Named for RepositoryInfo {

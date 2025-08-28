@@ -1,9 +1,16 @@
 {{#> layouts/main.hbs title="Home" active_page="home"}}
 <div class="container">
     <div class="hero">
-        <h1 class="hero-title">Home</h1>
-        <p class="hero-description">{{info.description}}</p>
+        <h1 class="hero-title">{{info.name}}</h1>
+        <p class="hero-description">{{info.summary}}</p>
     </div>
+    <hr class="mv-md">
+    {{#if info.description}}
+    <div class="big-section">
+        <h1>About</h1>
+        {{{md info.description}}}
+    </div>
+    {{/if}}
     <hr class="mv-md">
     {{> components/search.hbs }}
 </div>

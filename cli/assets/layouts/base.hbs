@@ -29,6 +29,21 @@
     <div id="content">
         {{> @partial-block }}
     </div>
+    <footer>
+        <div class="row gap-xs justify-center p-xs wrap">
+            {{#if info.imprint}}
+            <a href="{{info.imprint}}" target="_blank" rel="noopener noreferrer" class="btn">Imprint</a>
+            {{/if}}
+            {{#if info.privacy}}
+            <a href="{{info.privacy}}" target="_blank" rel="noopener noreferrer" class="btn">Privacy Policy</a>
+            {{/if}}
+        </div>
+        <div class="row gap-xs justify-center p-xs wrap">
+            {{#each info.links}}
+            <a href="{{this}}" target="_blank" rel="noopener noreferrer" class="btn">{{@key}}</a>
+            {{/each}}
+        </div>
+    </footer>
 
     <script>
         (function () {

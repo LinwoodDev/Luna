@@ -1,3 +1,28 @@
 name="Hallo"
-description="Simple data"
+summary="Simple data"
+description="""
+A large block of placeholder markdown using arbitrary text, faux commands, inert links, and illustrative structures. Use this as scaffolding for your own content.
+
+## Features
+
+- Crisp scaffolding with filler content
+- Configuration-driven layout with dummy values
+- Deterministic pseudo-outputs
+- Pluggable hooks (placeholders only)
+- CI-friendly narrative examples
+- Human-readable notes alongside data
+
+## Quick Start
+
+Test
+
+"""
 tags= ["main"]
+imprint="https://linwood.dev/imprint"
+privacy="https://linwood.dev/privacy"
+[links]
+GitHub="https://github.com/LinwoodDev"
+Bluesky="https://bsky.app/profile/linwood.dev"
+Mastodon="https://floss.social/@linwood"
+Matrix="https://go.linwood.dev/matrix"
+Discord="https://go.linwood.dev/discord"
