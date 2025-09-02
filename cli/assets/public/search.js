@@ -112,6 +112,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!assetMatches.length && !authorMatches.length) {
       statusEl.textContent = 'No results found.';
+    } else {
+      statusEl.style.display = 'none';
     }
   } catch (err) {
     console.error(err);
