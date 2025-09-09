@@ -13,5 +13,17 @@
     {{/if}}
     <hr class="mv-md">
     {{> components/search.hbs }}
+    <section class="big-section">
+      <h2>Browse by category</h2>
+      {{#if categories}}
+        <ul class="category-list">
+          {{#each categories}}
+            <li><a href="categories/{{slug this}}.html">{{this}}</a></li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p>No categories available.</p>
+      {{/if}}
+    </section>
 </div>
 {{/layouts/main.hbs}}

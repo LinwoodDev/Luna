@@ -17,7 +17,7 @@ A large block of placeholder markdown using arbitrary text, faux commands, inert
 Test
 
 """
-tags= ["main"]
+categories=["example", "data"]
 imprint="https://linwood.dev/imprint"
 privacy="https://linwood.dev/privacy"
 [links]

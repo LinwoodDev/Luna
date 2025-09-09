@@ -8,7 +8,6 @@ pub struct Asset {
     pub author: String,
     pub name: String,
     pub id: String,
-    pub tags: Vec<String>,
     pub thumbnail_url: Option<String>,
     pub preview_urls: Option<Vec<String>>,
     pub current_version: Version,
@@ -18,6 +17,8 @@ pub struct Asset {
     pub sponsor: Option<String>,
     pub source: Option<String>,
     pub website: Option<String>,
+    #[serde(default)]
+    pub categories: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]

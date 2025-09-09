@@ -1,0 +1,12 @@
+{{#> layouts/main.hbs title="Home" active_page="home"}}
+<h1>Categories</h1>
+<p>Browse all categories in this repository.</p>
+<ul>
+  {{#each categories_summaries}}
+    <li>
+      <a href="categories/{{slug name}}.html">{{name}}</a>
+      <span>({{count}})</span>
+    </li>
+  {{/each}}
+</ul>
+{{/layouts/main.hbs}}

@@ -54,7 +54,7 @@ Current todos:
   - [ ] Custom templates
   - [ ] Custom navbar links
   - [ ] Custom links on the resource page
-- [ ] Categories
+- [x] Categories
 - [ ] More language library support
   - [ ] Dart
 

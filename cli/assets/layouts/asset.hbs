@@ -5,6 +5,16 @@
         <a class="btn primary {{#if (eq activeTab 'download')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/download.html">Download {{asset.current_version.name}}</a>
     </div>
     <p class="m-none">by <a href="{{asset.author}}">{{asset.author}}</a></p>
+    {{#if asset.categories}}
+      <div class="row gap-xs">
+        <p class="m-none">Categories:</p>
+        <ul class="row gap-xs align-center">
+          {{#each asset.categories}}
+            <li><a class="badge" href="categories/{{slug this}}.html">{{this}}</a></li>
+          {{/each}}
+        </ul>
+      </div>
+    {{/if}}
     <ul class="row wrap gap-xs">
         <li><a class="btn {{#if (eq activeTab 'home')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}">Home</a></li>
         <li><a class="btn {{#if (eq activeTab 'changes')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>

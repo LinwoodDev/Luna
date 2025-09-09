@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use asset::*;
 use serde::{Deserialize, Serialize};
 
-const FILE_VERSION: u8 = 0;
+const FILE_VERSION: u8 = 1;
 
 pub trait Named {
     fn name(&self) -> &str;
@@ -32,7 +32,7 @@ pub struct RepositoryInfo {
     pub summary: Option<String>,
     pub description: Option<String>,
     #[serde(default)]
-    pub tags: Vec<String>,
+    pub categories: Vec<String>,
     pub imprint: Option<String>,
     pub privacy: Option<String>,
     #[serde(default)]

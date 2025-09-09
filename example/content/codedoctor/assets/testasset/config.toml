@@ -1,7 +1,7 @@
 name = "testasset"
 author = "codedoctor"
 id = "LEL"
-tags = ["theme", "note-taking", "components", "styles", "color-palette"]
+categories = ["example"]
 summary = "A UI component and style pack for note-taking apps featuring headings, paragraphs, graphs, and more"
 description = """
 

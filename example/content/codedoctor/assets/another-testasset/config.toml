@@ -1,7 +1,7 @@
 name = "another-testasset"
 author = "codedoctor"
 id = "LEL"
-tags = ["test", "asset"]
+categories = ["example"]
 summary = "An another test asset for demonstration"
 description = "This is a long description with details about the asset's functionality and usage."
 sponsor = "Some Sponsor"
