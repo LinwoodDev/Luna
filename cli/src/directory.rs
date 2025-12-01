@@ -173,3 +173,9 @@ impl ModelDirectory<Asset> for AssetDirectory<'_> {
         Some(self.1.clone())
     }
 }
+
+impl Default for RepositoryDirectory {
+    fn default() -> Self {
+        Self::new(None)
+    }
+}

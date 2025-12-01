@@ -11,13 +11,24 @@ pub trait Named {
     fn name(&self) -> &str;
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RepositoryData {
     pub assets: Vec<Asset>,
     pub authors: Vec<Author>,
     #[serde(flatten)]
     pub info: RepositoryInfo,
     pub file_version: u8,
+}
+
+impl Default for RepositoryData {
+    fn default() -> Self {
+        Self {
+            assets: Default::default(),
+            authors: Default::default(),
+            info: Default::default(),
+            file_version: FILE_VERSION,
+        }
+    }
 }
 
 impl Named for RepositoryData {
@@ -47,10 +58,7 @@ impl Named for RepositoryInfo {
 
 impl RepositoryData {
     pub fn new() -> RepositoryData {
-        RepositoryData {
-            file_version: FILE_VERSION,
-            ..Default::default()
-        }
+        Self::default()
     }
     pub fn from_index(data: &str) -> Result<RepositoryData, serde_json::Error> {
         serde_json::from_str(data)

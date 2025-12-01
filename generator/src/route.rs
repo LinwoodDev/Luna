@@ -27,7 +27,7 @@ impl LunaRouter {
         engine: &T,
         template: &str,
         context: &C,
-    ) -> Result<(), Box<dyn Error>>
+    ) -> Result<(), Box<dyn Error + Send + Sync>>
     where
         T: TemplateEngine,
         C: serde::Serialize,

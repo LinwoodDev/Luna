@@ -28,7 +28,7 @@ impl<'a> Default for HandlebarsTemplateEngine<'a> {
 }
 
 impl TemplateEngine for HandlebarsTemplateEngine<'_> {
-    fn render<T: Serialize>(&self, template: &str, context: &T) -> Result<String, Box<dyn Error>> {
+    fn render<T: Serialize>(&self, template: &str, context: &T) -> Result<String, Box<dyn Error + Send + Sync>> {
         let rendered = self.registry.render(template, &context)?;
         Ok(rendered)
     }

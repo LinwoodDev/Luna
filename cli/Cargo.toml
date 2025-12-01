@@ -16,3 +16,4 @@ handlebars = { version = "6", features = ["rust-embed"] }
 rust-embed = { version = "8", features = ["include-exclude"] }
 luna_generator = { path = "../generator", features = ["handlebars"] }
 markdown = "1.0"
+anyhow = "1.0.100"

@@ -10,9 +10,9 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum DocsError {
     #[error("Template invalid: {0}")]
-    Template(Box<dyn std::error::Error>),
+    Template(Box<dyn std::error::Error + Send + Sync>),
     #[error("Render {0} failed: {1}")]
-    Render(String, Box<dyn std::error::Error>),
+    Render(String, Box<dyn std::error::Error + Send + Sync>),
     #[error("IO failed: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -57,18 +57,7 @@ fn build_engine() -> Result<HandlebarsTemplateEngine<'static>, DocsError> {
     });
     // slug helper for building category URLs
     handlebars_helper!(slug: |s: str| {
-        let mut out = String::new();
-        let mut prev_dash = false;
-        for ch in s.to_lowercase().chars() {
-            if ch.is_ascii_alphanumeric() {
-                out.push(ch);
-                prev_dash = false;
-            } else if !prev_dash {
-                out.push('-');
-                prev_dash = true;
-            }
-        }
-        out.trim_matches('-').to_string()
+        slugify(s)
     });
     engine
         .registry()
