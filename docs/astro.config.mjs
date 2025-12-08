@@ -20,7 +20,7 @@ export default defineConfig({
         "./src/styles/custom.css",
       ],
       logo: {
-        src: "./public/logo.svg",
+        src: "./public/img/logo.svg",
       },
       favicon: "./favicon.ico",
       social: [
@@ -28,7 +28,7 @@ export default defineConfig({
         {icon: "matrix", label: "Matrix", href: "https://linwood.dev/matrix"},
         {icon: "discord", label: "Discord", href: "https://linwood.dev/discord"},
         {icon: "blueSky", label: "Bluesky", href: "https://bsky.app/profile/linwood.dev"},
-        {icon: "github", label: "GitHub", href: "https://github.com/LinwoodDev/Butterfly"},
+        {icon: "github", label: "GitHub", href: "https://github.com/LinwoodDev/Luna"},
       ],
       components: {
         Head: "./src/components/Head.astro",

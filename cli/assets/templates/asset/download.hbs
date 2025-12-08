@@ -1,6 +1,6 @@
 {{! filepath: c:\Users\wusel\Documents\Projects\Luna\cli\assets\templates\asset\download.hbs }}
 {{#> layouts/asset.hbs activeTab="download"}}
-<div class="card paper">
+<section class="card paper">
   <h1>{{version.name}}</h1>
   <p>SHA-256 checksum: <code>{{version.sha256}}</code></p>
   <button id="downloadBtn" class="btn secondary" data-url="{{version.download_url}}"
@@ -15,7 +15,7 @@
     <p>Make sure to verify the SHA-256 checksum <code>{{version.sha256}}</code> after downloading.</p>
   </noscript>
   <div>{{{md version.changes}}}</div>
-</div>
+</section>
 
 <script src="download.js"></script>
 {{/layouts/asset.hbs}}

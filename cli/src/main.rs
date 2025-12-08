@@ -19,7 +19,13 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Inspect the generated index file
-    Index(InspectArgs),
+    Index {
+        #[command(flatten)]
+        args: InspectArgs,
+        /// The path of the index file.
+        #[arg(default_value = "output/index.json")]
+        path: String,
+    },
     /// Inspect the current repository
     Get(InspectArgs),
     /// Generate an index file out of the current repository
@@ -33,13 +39,13 @@ enum Commands {
     Docs(DocsArgs),
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 struct InspectArgs {
     #[command(subcommand)]
     command: InspectCommands,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 enum InspectCommands {
     Author { name: String },
     Authors,
@@ -68,8 +74,53 @@ fn main() -> Result<()> {
     match &cli.command {
         Commands::Generate { path } => generate(path.to_owned())?,
         Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size)?,
-        _ => {
-            println!("Command not found yet");
+        Commands::Index { args, path } => {
+            let index_content = std::fs::read_to_string(path)
+                .with_context(|| format!("Could not read index file {path}"))?;
+
+            let data = RepositoryData::from_index(&index_content)
+                .context("Could not parse index file")?;
+
+            inspect(&data, args)?;
+        }
+        Commands::Get(args) => {
+            let directory = directory::RepositoryDirectory::default();
+            let data = directory.generate_index()
+                .context("Error while generating index")?;
+
+            inspect(&data, args)?;
+        }
+    }
+    Ok(())
+}
+
+fn inspect(data: &RepositoryData, args: &InspectArgs) -> Result<()> {
+    match &args.command {
+        InspectCommands::Author { name } => {
+            let author = data.authors.iter().find(|a| a.name == *name);
+            if let Some(author) = author {
+                println!("{:#?}", author);
+            } else {
+                println!("Author not found");
+            }
+        }
+        InspectCommands::Authors => {
+            for author in &data.authors {
+                println!("{}", author.name);
+            }
+        }
+        InspectCommands::Asset { name } => {
+            let asset = data.assets.iter().find(|a| a.name == *name);
+            if let Some(asset) = asset {
+                println!("{:#?}", asset);
+            } else {
+                println!("Asset not found");
+            }
+        }
+        InspectCommands::Assets => {
+            for asset in &data.assets {
+                println!("{}", asset.name);
+            }
         }
     }
     Ok(())

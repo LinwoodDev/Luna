@@ -3,13 +3,12 @@
 <noscript>
     <p>JavaScript is required to use the search functionality.</p>
 </noscript>
-<div id="search-results" style="display:none" class="container">
+<section id="search-results" style="display:none" class="container" aria-live="polite">
     <h2>Search Results</h2>
     <p id="search-status">Loading...</p>
     <ul id="search-list" class="col gap-sm">
         {{> components/item.hbs id="search-item-template" href="#" title="" description="" style="display:none" }}
     </ul>
-</div>
-</div>
+</section>
 <script src="search.js"></script>
 {{/layouts/main.hbs}}

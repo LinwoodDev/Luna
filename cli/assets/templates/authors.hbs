@@ -1,9 +1,9 @@
 {{#> layouts/main.hbs title="Authors" active_page="authors"}}
 <div class="container">
-    <div class="section">
+    <section class="section">
         <h1>Authors</h1>
-    </div>
-    <div class="section mt-md">
+    </section>
+    <section class="section mt-md">
         <ul class="col justify-center wrap gap-sm">
             {{#each authors}}
             {{> components/item.hbs href=(concat this.name) title=(display this) description=this.description }}
@@ -23,6 +23,6 @@
             <a class="btn secondary" href="authors/{{inc current_page}}.html">Next</a>
             {{/if}}
         </div>
-    </div>
+    </section>
 </div>
 {{/layouts/main.hbs}}

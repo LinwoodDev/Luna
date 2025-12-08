@@ -1,9 +1,11 @@
 {{#> layouts/asset.hbs activeTab="home"}}
     <div class="container">
-        <div>{{{md asset.description}}}</div>
-        <div class="card paper">
+        <section class="mb-md">
+            {{{md asset.description}}}
+        </section>
+        <section class="card paper">
             <h2>{{asset.current_version.name}}</h2>
             <div>{{{md asset.current_version.changes}}}</div>
-        </div>
+        </section>
     </div>
 {{/layouts/asset.hbs}}

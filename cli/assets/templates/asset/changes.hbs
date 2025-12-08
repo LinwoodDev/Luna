@@ -1,5 +1,5 @@
 {{#> layouts/asset.hbs activeTab="changes"}}
-<div class="card paper">
+<section class="card paper">
   {{#with asset.current_version}}
   <div class="row wrap align-start justify-between">
     <h2>{{this.name}}</h2>
@@ -7,22 +7,24 @@
   </div>
   <div>{{{md this.changes}}}</div>
   {{/with}}
-</div>
+</section>
 {{#if (len asset.previous_versions)}}
 <hr class="mv-md">
 {{/if}}
 <div class="container">
-  <ul class="col gap-xs">
-    {{#each asset.previous_versions}}
-    <li class="card paper">
-      <div class="row wrap align-start justify-between">
-        <h2>{{this.name}}</h2>
-        <a class="btn primary" href="{{../asset.author}}/{{../asset.name}}/download/{{this.name}}.html">Download</a>
-      </div>
-      <hr>
-      <div>{{{md this.changes}}}</div>
-    </li>
-    {{/each}}
-  </ul>
+  <section>
+      <ul class="col gap-xs">
+        {{#each asset.previous_versions}}
+        <li class="card paper">
+          <div class="row wrap align-start justify-between">
+            <h2>{{this.name}}</h2>
+            <a class="btn primary" href="{{../asset.author}}/{{../asset.name}}/download/{{this.name}}.html">Download</a>
+          </div>
+          <hr>
+          <div>{{{md this.changes}}}</div>
+        </li>
+        {{/each}}
+      </ul>
+  </section>
 </div>
 {{/layouts/asset.hbs}}

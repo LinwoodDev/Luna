@@ -1,12 +1,18 @@
-{{#> layouts/main.hbs title="Home" active_page="home"}}
-<h1>Categories</h1>
-<p>Browse all categories in this repository.</p>
-<ul>
-  {{#each categories_summaries}}
-    <li>
-      <a href="categories/{{slug name}}.html">{{name}}</a>
-      <span>({{count}})</span>
-    </li>
-  {{/each}}
-</ul>
+{{#> layouts/main.hbs title="Categories" active_page="home"}}
+<div class="container">
+    <section class="section">
+        <h1>Categories</h1>
+        <p>Browse all categories in this repository.</p>
+    </section>
+    <section class="section mt-md">
+        <ul>
+          {{#each categories_summaries}}
+            <li>
+              <a href="categories/{{slug name}}.html">{{name}}</a>
+              <span>({{count}})</span>
+            </li>
+          {{/each}}
+        </ul>
+    </section>
+</div>
 {{/layouts/main.hbs}}

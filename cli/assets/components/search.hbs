@@ -1,7 +1,7 @@
-<div class="big-section">
+<section class="big-section">
   <h2>Search</h2>
   <p>Search for author or assets</p>
-  <form class="max-w-full col align-stretch gap-xs mt-sm" method="get" action="search.html">
+  <form class="max-w-full col align-stretch gap-xs mt-sm" method="get" action="search.html" role="search">
     <div class="form-group">
       <input type="checkbox" name="authors" id="search-authors" checked>
       <label for="search-authors" class="form-label">Authors</label>
@@ -11,8 +11,8 @@
       <label for="search-assets" class="form-label">Assets</label>
     </div>
     <div class="row gap-xs align-stretch mt-xs">
-      <input type="text" id="search-input" class="flex m-none" name="q" placeholder="Search..." class="form-control">
+      <input aria-label="Search query" type="text" id="search-input" class="flex m-none form-control" name="q" placeholder="Search...">
       <button type="submit" class="btn secondary">Search</button>
     </div>
   </form>
-</div>
+</section>

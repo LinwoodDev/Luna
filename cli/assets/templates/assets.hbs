@@ -1,9 +1,9 @@
 {{#> layouts/main.hbs title="Assets" active_page="assets"}}
 <div class="container">
-    <div class="section">
+    <section class="section">
         <h1>Assets</h1>
-    </div>
-    <div class="section mt-md">
+    </section>
+    <section class="section mt-md">
         <ul class="col justify-center wrap gap-sm">
             {{#each assets}}
             {{> components/item.hbs href=(concat this.author "/" this.name) title=this.name description=this.summary }}
@@ -23,6 +23,6 @@
             <a class="btn secondary" href="assets/{{inc current_page}}.html">Next</a>
             {{/if}}
         </div>
-    </div>
+    </section>
 </div>
 {{/layouts/main.hbs}}

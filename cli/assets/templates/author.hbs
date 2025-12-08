@@ -1,7 +1,7 @@
 {{#> layouts/main.hbs active_page="" title=author.name}}
 <div class="container">
     <div class="row wrap justify-center gap-lg align-start">
-        <div class="col max-w-xl card paper gap-xs align-center">
+        <section class="col max-w-xl card paper gap-xs align-center" aria-label="Author Profile">
             {{#if author.avatar_url}}
             <img class="w-sm" src="{{author.avatar_url}}" alt="{{author.name}} thumbnail">
             {{/if}}
@@ -11,7 +11,7 @@
             <p class="text m-none">{{author.description}}</p>
             <div class="col">
                 <a class="btn" href="mailto:{{author.email}}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ffffff" viewBox="0 0 256 256">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ffffff" viewBox="0 0 256 256">
                         <path
                             d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48Zm-96,85.15L52.57,64H203.43ZM98.71,128,40,181.81V74.19Zm11.84,10.85,12,11.05a8,8,0,0,0,10.82,0l12-11.05,58,53.15H52.57ZM157.29,128,216,74.18V181.82Z">
                         </path>
@@ -23,7 +23,7 @@
                     <li>
                         <!-- Phosphor icons -->
                         <a class="btn" href="{{this}}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ffffff"
+                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ffffff"
                                 viewBox="0 0 256 256">
                                 <path
                                     d="M240,88.23a54.43,54.43,0,0,1-16,37L189.25,160a54.27,54.27,0,0,1-38.63,16h-.05A54.63,54.63,0,0,1,96,119.84a8,8,0,0,1,16,.45A38.62,38.62,0,0,0,150.58,160h0a38.39,38.39,0,0,0,27.31-11.31l34.75-34.75a38.63,38.63,0,0,0-54.63-54.63l-11,11A8,8,0,0,1,135.7,59l11-11A54.65,54.65,0,0,1,224,48,54.86,54.86,0,0,1,240,88.23ZM109,185.66l-11,11A38.41,38.41,0,0,1,70.6,208h0a38.63,38.63,0,0,1-27.29-65.94L78,107.31A38.63,38.63,0,0,1,144,135.71a8,8,0,0,0,16,.45A54.86,54.86,0,0,0,144,96a54.65,54.65,0,0,0-77.27,0L32,130.75A54.62,54.62,0,0,0,70.56,224h0a54.28,54.28,0,0,0,38.64-16l11-11A8,8,0,0,0,109,185.66Z">
@@ -35,8 +35,8 @@
                     {{/each}}
                 </ul>
             </div>
-        </div>
-        <div class="col flex min-w-md">
+        </section>
+        <section class="col flex min-w-md" aria-label="Author Assets">
             <h2>Assets</h2>
             <ul class="col gap-sm">
                 {{#each assets}}

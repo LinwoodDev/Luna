@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{{info.summary}}" />
+    <meta property="og:title" content="{{title}} | {{info.name}}" />
+    <meta property="og:description" content="{{info.summary}}" />
+    <meta property="og:type" content="website" />
     <title>{{> title}}</title>
     <base href="{{root}}" />
 
@@ -26,9 +30,10 @@
 </head>
 
 <body>
-    <div id="content">
+    <a href="#content" class="skip-link">Skip to content</a>
+    <main id="content">
         {{> @partial-block }}
-    </div>
+    </main>
     <footer>
         <div class="row gap-xs justify-center p-xs wrap">
             {{#if info.imprint}}

@@ -2,7 +2,7 @@
 {{#*inline "title"}}{{title}} | {{info.name}}{{/inline}}
 <header class="navbar-lg sticky">
     <a href="./" class="navbar-title">{{info.name}} | Luna</a>
-    <nav class="navbar-items">
+    <nav class="navbar-items" aria-label="Main navigation">
         <a class="btn secondary {{#if (eq active_page 'home')}}active{{/if}}" href="./">Home</a>
         <a class="btn secondary {{#if (eq active_page 'assets')}}active{{/if}}" href="assets.html">Assets</a>
         <a class="btn secondary {{#if (eq active_page 'authors')}}active{{/if}}" href="authors.html">Authors</a>
