@@ -51,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Download CLI artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: cli-artifacts
           path: example/cli
