@@ -1,18 +1,22 @@
 <section class="big-section">
   <h2>Search</h2>
   <p>Search for author or assets</p>
-  <form class="max-w-full col align-stretch gap-xs mt-sm" method="get" action="search.html" role="search">
-    <div class="form-group">
-      <input type="checkbox" name="authors" id="search-authors" checked>
-      <label for="search-authors" class="form-label">Authors</label>
-    </div>
-    <div class="form-group">
-      <input type="checkbox" name="assets" id="search-assets" checked>
-      <label for="search-assets" class="form-label">Assets</label>
-    </div>
-    <div class="row gap-xs align-stretch mt-xs">
+  <form class="max-w-full col align-stretch gap-sm mt-sm" method="get" action="search.html" role="search">
+    <div class="row gap-xs align-stretch">
       <input aria-label="Search query" type="text" id="search-input" class="flex m-none form-control" name="q" placeholder="Search...">
       <button type="submit" class="btn secondary">Search</button>
     </div>
+
+    <div class="row gap-md align-center">
+      <div class="form-group">
+        <input type="checkbox" name="authors" id="search-authors" checked>
+        <label for="search-authors" class="form-label">Authors</label>
+      </div>
+      <div class="form-group">
+        <input type="checkbox" name="assets" id="search-assets" checked>
+        <label for="search-assets" class="form-label">Assets</label>
+      </div>
+    </div>
+
   </form>
 </section>

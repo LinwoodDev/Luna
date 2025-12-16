@@ -22,7 +22,13 @@ impl RepositoryDirectory {
             for asset in directory.assets()? {
                 let directory = directory.asset(&asset);
                 let model = directory.model()?;
-                data.assets.push(model);
+                if !model
+                    .categories
+                    .iter()
+                    .any(|c| data.info.exclude_categories.contains(c))
+                {
+                    data.assets.push(model);
+                }
             }
         }
         Ok(data)

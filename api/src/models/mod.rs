@@ -44,6 +44,8 @@ pub struct RepositoryInfo {
     pub description: Option<String>,
     #[serde(default)]
     pub categories: Vec<String>,
+    #[serde(default)]
+    pub exclude_categories: Vec<String>,
     pub imprint: Option<String>,
     pub privacy: Option<String>,
     #[serde(default)]

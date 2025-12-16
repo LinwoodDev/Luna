@@ -1,14 +1,52 @@
 {{#> layouts/main.hbs title="Search" active_page="search"}}
-{{> components/search.hbs }}
-<noscript>
-    <p>JavaScript is required to use the search functionality.</p>
-</noscript>
-<section id="search-results" style="display:none" class="container" aria-live="polite">
-    <h2>Search Results</h2>
-    <p id="search-status">Loading...</p>
-    <ul id="search-list" class="col gap-sm">
-        {{> components/item.hbs id="search-item-template" href="#" title="" description="" style="display:none" }}
-    </ul>
-</section>
+<div class="container mt-md">
+    <form class="search-page-layout" method="get" action="search.html" role="search">
+        <aside class="search-sidebar card paper p-sm h-max">
+            <h3>Filters</h3>
+            
+            <div class="form-group">
+                <input type="checkbox" name="authors" id="search-authors" checked>
+                <label for="search-authors" class="form-label">Authors</label>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" name="assets" id="search-assets" checked>
+                <label for="search-assets" class="form-label">Assets</label>
+            </div>
+
+            <hr>
+            
+            <div id="search-filters" style="display:none">
+                <p class="h5">Categories</p>
+                <div id="search-categories" class="col gap-xs"></div>
+            </div>
+        </aside>
+
+        <main class="search-content col gap-md">
+            <div class="row gap-xs align-stretch">
+                <input aria-label="Search query" type="text" id="search-input" class="flex m-none form-control" name="q" placeholder="Search...">
+                <button type="submit" class="btn secondary">Search</button>
+            </div>
+
+            <noscript>
+                <p>JavaScript is required to use the search functionality.</p>
+            </noscript>
+            
+            <section id="search-results" style="display:none" aria-live="polite">
+                <div class="row align-center justify-between">
+                    <h2>Results</h2>
+                    <p id="search-status">Loading...</p>
+                </div>
+                <ul id="search-list" class="col gap-sm">
+                    {{> components/item.hbs id="search-item-template" href="#" title="" description="" style="display:none" }}
+                </ul>
+            </section>
+            
+            <section id="search-empty" style="display:none" class="card paper p-md text-center">
+                <h3>Start Searching</h3>
+                <p>Enter a search term or select filters to find assets and authors.</p>
+            </section>
+        </main>
+    </form>
+</div>
 <script src="search.js"></script>
 {{/layouts/main.hbs}}

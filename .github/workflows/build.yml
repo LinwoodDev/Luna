@@ -17,7 +17,7 @@ jobs:
       run:
         working-directory: ${{ matrix.project }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         if: matrix.project == 'cli'
         with:
@@ -37,7 +37,7 @@ jobs:
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: matrix.project == 'cli'
         with:
           name: cli-artifacts
@@ -49,9 +49,9 @@ jobs:
       run:
         working-directory: example
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download CLI artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: cli-artifacts
           path: example/cli
@@ -81,7 +81,7 @@ jobs:
     if: github.event_name != 'pull_request'
     steps:
       - name: ⬆️ Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set Docker tag
         id: docker_tag
         run: |

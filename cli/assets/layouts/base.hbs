@@ -79,6 +79,17 @@
                         const { html, title } = await fetchContent(url);
                         contentEl.innerHTML = html;
                         document.title = title;
+
+                        // Re-execute scripts in the new content
+                        const scripts = contentEl.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            newScript.textContent = oldScript.textContent;
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
                     } catch (err) {
                         console.error('Navigation error:', err);
                         location.href = url; // fallback to full reload
