@@ -51,6 +51,7 @@ Current todos:
 - [ ] Implement a bundling system to host assets in the docs
   - [ ] Avatars
   - [ ] Asset items
+- [x] Filtering
 - [ ] Sorting
 - [ ] More customization options
   - [ ] Custom templates
@@ -61,6 +62,22 @@ Current todos:
   - [ ] Dart
 
 ---
+
+## GitHub Actions
+
+You can use Luna in your GitHub Actions workflow to generate your site.
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+  - uses: LinwoodDev/Luna@develop
+    with:
+      command: 'build'
+      path: 'output/docs'
+      index_path: 'output/index.json'
+```
+
+If you only want to generate the index or docs separately, you can use the `generate` or `docs` commands.
 
 ## Contributing
 

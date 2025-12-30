@@ -1,0 +1,26 @@
+name: 'Luna CLI'
+description: 'Luna is a build system to enable hosting a static library system for assets.'
+author: 'LinwoodCloud'
+branding:
+  icon: 'package'
+  color: 'green'
+inputs:
+  command:
+    description: 'Command to run (generate, docs, build, index, get)'
+    required: false
+    default: 'generate'
+  path:
+    description: 'Output path (for generate/docs/build) or input path (for index)'
+    required: false
+  index_path:
+    description: 'Input index path (only for docs command)'
+    required: false
+  page_size:
+    description: 'Page size (only for docs command)'
+    required: false
+  args:
+    description: 'Raw arguments to pass to the CLI (overrides other inputs)'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

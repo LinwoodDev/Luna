@@ -14,4 +14,6 @@ RUN cargo install --path ./cli --locked
 
 FROM alpine:latest
 COPY --from=builder /usr/local/cargo/bin/luna_cli /usr/local/bin/luna_cli
-ENTRYPOINT ["luna_cli"]
+COPY cli/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
