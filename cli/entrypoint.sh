@@ -12,7 +12,7 @@ if [ "$COMMAND" = "generate" ]; then
     if [ -n "$INPUT_PATH" ]; then
         CMD="$CMD $INPUT_PATH"
     fi
-elif [ "$COMMAND" = "docs" ]; then
+elif [ "$COMMAND" = "docs" ] || [ "$COMMAND" = "build" ]; then
     PATH_VAL="${INPUT_PATH:-output/docs}"
     # If index path is set, we must provide path
     if [ -n "$INPUT_INDEX_PATH" ]; then
@@ -22,17 +22,6 @@ elif [ "$COMMAND" = "docs" ]; then
         CMD="$CMD $INPUT_PATH"
     fi
     
-    if [ -n "$INPUT_PAGE_SIZE" ]; then
-        CMD="$CMD --page-size $INPUT_PAGE_SIZE"
-    fi
-elif [ "$COMMAND" = "build" ]; then
-    INDEX_PATH="${INPUT_INDEX_PATH:-output/index.json}"
-    DOCS_PATH="${INPUT_PATH:-output/docs}"
-    
-    echo "Running: luna_cli generate $INDEX_PATH"
-    luna_cli generate "$INDEX_PATH" || exit 1
-    
-    CMD="luna_cli docs $DOCS_PATH $INDEX_PATH"
     if [ -n "$INPUT_PAGE_SIZE" ]; then
         CMD="$CMD --page-size $INPUT_PAGE_SIZE"
     fi

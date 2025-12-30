@@ -37,6 +37,8 @@ enum Commands {
     },
     /// Generate documentation for the current index file
     Docs(DocsArgs),
+    /// Generate an index file and documentation
+    Build(DocsArgs),
 }
 
 #[derive(Args, Clone)]
@@ -74,6 +76,10 @@ fn main() -> Result<()> {
     match &cli.command {
         Commands::Generate { path } => generate(path.to_owned())?,
         Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size)?,
+        Commands::Build(args) => {
+            generate(args.index.to_owned())?;
+            docs(args.path.to_owned(), args.index.to_owned(), args.page_size)?;
+        }
         Commands::Index { args, path } => {
             let index_content = std::fs::read_to_string(path)
                 .with_context(|| format!("Could not read index file {path}"))?;
