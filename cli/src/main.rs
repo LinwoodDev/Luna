@@ -39,6 +39,18 @@ enum Commands {
     Docs(DocsArgs),
     /// Generate an index file and documentation
     Build(DocsArgs),
+    /// Preview the generated documentation
+    Preview(PreviewArgs),
+}
+
+#[derive(Args)]
+struct PreviewArgs {
+    /// The path where the docs are generated.
+    #[arg(default_value = "output/docs")]
+    path: String,
+    /// The port to serve on.
+    #[arg(short, long, default_value_t = 8000)]
+    port: u16,
 }
 
 #[derive(Args, Clone)]
@@ -80,6 +92,7 @@ fn main() -> Result<()> {
             generate(args.index.to_owned())?;
             docs(args.path.to_owned(), args.index.to_owned(), args.page_size)?;
         }
+        Commands::Preview(args) => preview(args.path.to_owned(), args.port)?,
         Commands::Index { args, path } => {
             let index_content = std::fs::read_to_string(path)
                 .with_context(|| format!("Could not read index file {path}"))?;
@@ -162,5 +175,18 @@ fn generate(path: String) -> Result<()> {
         .context("Could not write file")?;
 
     println!("Successfully generated index file at {path:?}.");
+    Ok(())
+}
+
+fn preview(path: String, port: u16) -> Result<()> {
+    let rt = tokio::runtime::Runtime::new()?;
+    rt.block_on(async {
+        let app = axum::Router::new().nest_service("/", tower_http::services::ServeDir::new(path));
+        let addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
+        println!("Listening on http://localhost:{}", port);
+        let listener = tokio::net::TcpListener::bind(addr).await?;
+        axum::serve(listener, app).await?;
+        Ok::<(), anyhow::Error>(())
+    })?;
     Ok(())
 }

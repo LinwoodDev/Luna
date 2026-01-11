@@ -17,3 +17,7 @@ rust-embed = { version = "8", features = ["include-exclude"] }
 luna_generator = { path = "../generator", features = ["handlebars"] }
 markdown = "1.0"
 anyhow = "1.0.100"
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["fs"] }
+
