@@ -164,10 +164,8 @@ fn download_asset(
 
     if target_path.exists() {
         if let Some(expected) = expected_sha256 {
-            if let Ok(actual) = calculate_sha256(&target_path) {
-                if actual == expected {
-                    return Ok(rel_path.to_string());
-                }
+            if calculate_sha256(&target_path).is_ok_and(|actual| actual == expected) {
+                return Ok(rel_path.to_string());
             }
         } else {
             // For images without explicit checksums, we assume they are correct if they exist
