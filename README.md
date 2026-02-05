@@ -48,9 +48,9 @@ The API is not yet stable, but the CLI is usable.
 
 Current todos:
 
-- [ ] Implement a bundling system to host assets in the docs
-  - [ ] Avatars
-  - [ ] Asset items
+- [x] Implement a bundling system to host assets in the docs
+  - [x] Avatars
+  - [x] Asset items
 - [x] Filtering
 - [ ] Sorting
 - [ ] More customization options

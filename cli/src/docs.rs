@@ -1,3 +1,5 @@
+use clap::ValueEnum;
+use sha2::{Digest, Sha256};
 use std::{fs, io::Write, path::Path};
 
 use handlebars::handlebars_helper;
@@ -15,6 +17,22 @@ pub enum DocsError {
     Render(String, Box<dyn std::error::Error + Send + Sync>),
     #[error("IO failed: {0}")]
     Io(#[from] std::io::Error),
+    #[error("Download failed: {0}")]
+    Download(#[from] reqwest::Error),
+    #[error("Checksum mismatch on {path}: expected {expected}, found {actual}")]
+    ChecksumMismatch {
+        path: String,
+        expected: String,
+        actual: String,
+    },
+}
+
+#[derive(ValueEnum, Clone, Debug, Default, PartialEq)]
+pub enum BundleStrategy {
+    None,
+    #[default]
+    Images,
+    All,
 }
 
 #[derive(RustEmbed)]
@@ -76,6 +94,144 @@ fn build_engine() -> Result<HandlebarsTemplateEngine<'static>, DocsError> {
     Ok(engine)
 }
 
+fn bundle_assets(
+    data: &mut RepositoryData,
+    output: &Path,
+    strategy: &BundleStrategy,
+) -> Result<(), DocsError> {
+    // Bundle Authors
+    for author in &mut data.authors {
+        if let Some(url) = &author.avatar_url {
+            let ext = get_extension(url);
+            let rel_path = format!("assets/images/authors/{}.{}", author.name, ext);
+            if let Ok(path) = download_asset(url, output, &rel_path, None) {
+                author.avatar_url = Some(path);
+            }
+        }
+    }
+
+    // Bundle Assets
+    for asset in &mut data.assets {
+        if let Some(url) = &asset.thumbnail_url {
+            let ext = get_extension(url);
+            let rel_path = format!("assets/images/assets/{}_thumbnail.{}", asset.id, ext);
+            if let Ok(path) = download_asset(url, output, &rel_path, None) {
+                asset.thumbnail_url = Some(path);
+            }
+        }
+        if let Some(urls) = &mut asset.preview_urls {
+            for (i, url) in urls.iter_mut().enumerate() {
+                let ext = get_extension(url);
+                let rel_path = format!("assets/images/assets/{}_preview_{}.{}", asset.id, i, ext);
+                if let Ok(path) = download_asset(url, output, &rel_path, None) {
+                    *url = path;
+                }
+            }
+        }
+
+        if *strategy == BundleStrategy::All {
+            // Bundle Versions
+            for version in std::iter::once(&mut asset.current_version)
+                .chain(asset.previous_versions.iter_mut())
+            {
+                let filename = url_filename(&version.download_url)
+                    .unwrap_or_else(|| format!("{}.zip", version.name));
+                let rel_path = format!(
+                    "assets/downloads/{}/{}/{}",
+                    asset.id, version.name, filename
+                );
+                if let Ok(path) = download_asset(
+                    &version.download_url,
+                    output,
+                    &rel_path,
+                    Some(&version.sha256),
+                ) {
+                    version.download_url = path;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn download_asset(
+    url: &str,
+    output_root: &Path,
+    rel_path: &str,
+    expected_sha256: Option<&str>,
+) -> Result<String, DocsError> {
+    let target_path = output_root.join(rel_path);
+
+    if target_path.exists() {
+        if let Some(expected) = expected_sha256 {
+            if let Ok(actual) = calculate_sha256(&target_path) {
+                if actual == expected {
+                    return Ok(rel_path.to_string());
+                }
+            }
+        } else {
+            // For images without explicit checksums, we assume they are correct if they exist
+            // This could be improved with ETags or Last-Modified if needed
+            return Ok(rel_path.to_string());
+        }
+    }
+
+    if let Some(parent) = target_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    // Check if it's a remote URL
+    if url.starts_with("http") {
+        let response = reqwest::blocking::get(url)?;
+        let content = response.bytes()?;
+        let mut file = fs::File::create(&target_path)?;
+        file.write_all(&content)?;
+    } else {
+        let src_path = Path::new(url);
+        if src_path.exists() {
+            fs::copy(src_path, &target_path)?;
+        } else {
+            return Ok(url.to_string());
+        }
+    }
+
+    // Verify after download if checksum provided
+    if let Some(expected) = expected_sha256 {
+        let actual = calculate_sha256(&target_path)?;
+        if actual != expected {
+            return Err(DocsError::ChecksumMismatch {
+                path: rel_path.to_string(),
+                expected: expected.to_string(),
+                actual,
+            });
+        }
+    }
+
+    Ok(rel_path.to_string())
+}
+
+fn calculate_sha256(path: &Path) -> Result<String, DocsError> {
+    let mut file = fs::File::open(path)?;
+    let mut hasher = Sha256::new();
+    std::io::copy(&mut file, &mut hasher)?;
+    Ok(hex::encode(hasher.finalize()))
+}
+
+fn url_filename(url: &str) -> Option<String> {
+    let url = url.split('?').next().unwrap_or(url);
+    Path::new(url)
+        .file_name()
+        .map(|f| f.to_string_lossy().to_string())
+}
+
+fn get_extension(url: &str) -> String {
+    let url = url.split('?').next().unwrap_or(url);
+    Path::new(url)
+        .extension()
+        .map(|s| s.to_string_lossy().to_string())
+        .unwrap_or_else(|| "png".to_string())
+}
+
 // Simple slugify for route paths
 fn slugify<S: AsRef<str>>(s: S) -> String {
     let s = s.as_ref().to_lowercase();
@@ -97,10 +253,17 @@ pub fn generate_docs(
     data: &RepositoryData,
     output: String,
     page_size: usize,
+    bundle: BundleStrategy,
 ) -> Result<(), DocsError> {
     let output_path = Path::new(&output);
-    if output_path.exists() {
-        fs::remove_dir_all(output_path)?;
+    if !output_path.exists() {
+        fs::create_dir_all(output_path)?;
+    }
+
+    let mut data = data.clone();
+
+    if bundle != BundleStrategy::None {
+        bundle_assets(&mut data, output_path, &bundle)?;
     }
 
     let _ = page_size;
@@ -167,7 +330,12 @@ pub fn generate_docs(
             json!(categories_summaries),
         );
         let v = &Value::Object(ctx);
-        add_route(&mut router, "categories.html", "templates/categories.hbs", v)?;
+        add_route(
+            &mut router,
+            "categories.html",
+            "templates/categories.hbs",
+            v,
+        )?;
     }
 
     // Per-category pages (paginated)

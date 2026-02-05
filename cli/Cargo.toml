@@ -20,4 +20,7 @@ anyhow = "1.0"
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.6", features = ["fs"] }
+reqwest = { version = "0.12", features = ["blocking", "rustls-tls"] }
+sha2 = "0.10"
+hex = "0.4"
 

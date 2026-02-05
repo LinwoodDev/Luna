@@ -78,6 +78,9 @@ struct DocsArgs {
     /// The page size of lists. Default to: 20
     #[arg(long, default_value_t = 20)]
     page_size: usize,
+    /// The strategy for bundling assets.
+    #[arg(long, default_value_t = docs::BundleStrategy::Images, value_enum)]
+    bundle: docs::BundleStrategy,
 }
 
 fn main() -> Result<()> {
@@ -87,10 +90,10 @@ fn main() -> Result<()> {
     // matches just as you would the top level cmd
     match &cli.command {
         Commands::Generate { path } => generate(path.to_owned())?,
-        Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size)?,
+        Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone())?,
         Commands::Build(args) => {
             generate(args.index.to_owned())?;
-            docs(args.path.to_owned(), args.index.to_owned(), args.page_size)?;
+            docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone())?;
         }
         Commands::Preview(args) => preview(args.path.to_owned(), args.port)?,
         Commands::Index { args, path } => {
@@ -145,14 +148,14 @@ fn inspect(data: &RepositoryData, args: &InspectArgs) -> Result<()> {
     Ok(())
 }
 
-fn docs(path: String, index: String, page_size: usize) -> Result<()> {
+fn docs(path: String, index: String, page_size: usize, bundle: docs::BundleStrategy) -> Result<()> {
     let index_content = std::fs::read_to_string(&index)
         .with_context(|| format!("Could not read index file {index}"))?;
 
     let data = RepositoryData::from_index(&index_content)
         .context("Could not parse index file")?;
 
-    docs::generate_docs(&data, path, page_size)
+    docs::generate_docs(&data, path, page_size, bundle)
         .context("Error while generating docs")?;
 
     println!("Successfully generated docs.");
@@ -181,7 +184,7 @@ fn generate(path: String) -> Result<()> {
 fn preview(path: String, port: u16) -> Result<()> {
     let rt = tokio::runtime::Runtime::new()?;
     rt.block_on(async {
-        let app = axum::Router::new().nest_service("/", tower_http::services::ServeDir::new(path));
+        let app = axum::Router::new().fallback_service(tower_http::services::ServeDir::new(path));
         let addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
         println!("Listening on http://localhost:{}", port);
         let listener = tokio::net::TcpListener::bind(addr).await?;
