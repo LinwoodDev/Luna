@@ -15,10 +15,21 @@
         </ul>
       </div>
     {{/if}}
-    <nav aria-label="Asset navigation">
+    <nav aria-label="Asset navigation" class="row wrap justify-between">
         <ul class="row wrap gap-xs">
             <li><a class="btn {{#if (eq activeTab 'home')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}">Home</a></li>
             <li><a class="btn {{#if (eq activeTab 'changes')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>
+        </ul>
+        <ul class="row wrap gap-xs">
+          {{#if asset.website}}
+          <a class="btn secondary" href="{{asset.website}}" target="_blank" rel="noopener noreferrer">Website</a>
+          {{/if}}
+          {{#if asset.source}}
+          <a class="btn secondary" href="{{asset.source}}" target="_blank" rel="noopener noreferrer">Source</a>
+          {{/if}}
+          {{#if asset.sponsor}}
+          <a class="btn secondary" href="{{asset.sponsor}}" target="_blank" rel="noopener noreferrer">Sponsor</a>
+          {{/if}}
         </ul>
     </nav>
 </section>

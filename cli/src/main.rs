@@ -81,6 +81,15 @@ struct DocsArgs {
     /// The strategy for bundling assets.
     #[arg(long, default_value_t = docs::BundleStrategy::Images, value_enum)]
     bundle: docs::BundleStrategy,
+    /// Optional root directory for custom docs templates and static files.
+    ///
+    /// Expected structure:
+    /// - templates/**/*.hbs
+    /// - components/**/*.hbs
+    /// - layouts/**/*.hbs
+    /// - public/**/*
+    #[arg(long)]
+    custom_root: Option<String>,
 }
 
 fn main() -> Result<()> {
@@ -90,10 +99,10 @@ fn main() -> Result<()> {
     // matches just as you would the top level cmd
     match &cli.command {
         Commands::Generate { path } => generate(path.to_owned())?,
-        Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone())?,
+        Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone(), args.custom_root.to_owned())?,
         Commands::Build(args) => {
             generate(args.index.to_owned())?;
-            docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone())?;
+            docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone(), args.custom_root.to_owned())?;
         }
         Commands::Preview(args) => preview(args.path.to_owned(), args.port)?,
         Commands::Index { args, path } => {
@@ -148,14 +157,14 @@ fn inspect(data: &RepositoryData, args: &InspectArgs) -> Result<()> {
     Ok(())
 }
 
-fn docs(path: String, index: String, page_size: usize, bundle: docs::BundleStrategy) -> Result<()> {
+fn docs(path: String, index: String, page_size: usize, bundle: docs::BundleStrategy, custom_root: Option<String>) -> Result<()> {
     let index_content = std::fs::read_to_string(&index)
         .with_context(|| format!("Could not read index file {index}"))?;
 
     let data = RepositoryData::from_index(&index_content)
         .context("Could not parse index file")?;
 
-    docs::generate_docs(&data, path, page_size, bundle)
+    docs::generate_docs(&data, path, page_size, bundle, custom_root)
         .context("Error while generating docs")?;
 
     println!("Successfully generated docs.");

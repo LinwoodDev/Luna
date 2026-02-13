@@ -4,7 +4,6 @@ id = "LEL"
 categories = ["example"]
 summary = "An another test asset for demonstration"
 description = "This is a long description with details about the asset's functionality and usage."
-sponsor = "Some Sponsor"
 source = "https://github.com/CodeDoctorDE"
 website = "https://example.com/testasset"
 
@@ -15,3 +14,6 @@ name = "1.0"
 changes = "Nothing"
 download_url = "/favicon.ico"
 sha256 = "bd3166d15db9bf183cb85087883019d2de69082db5ea9908531dbd3c227c9821"
+
+[links]
+TestLink = "https://example.com/testlink"

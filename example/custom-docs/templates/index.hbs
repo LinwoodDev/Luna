@@ -1,0 +1,30 @@
+{{#> layouts/main.hbs title="Home" active_page="home"}}
+<div class="container">
+    <div class="hero">
+        <h1 class="hero-title">{{info.name}} (Custom Template)</h1>
+        <p class="hero-description">{{info.summary}}</p>
+    </div>
+    <p id="custom-template-marker">Custom docs template override is active.</p>
+    <hr class="mv-md">
+    {{#if info.description}}
+    <section class="big-section">
+        <h2>About</h2>
+        {{{md info.description}}}
+    </section>
+    {{/if}}
+    <hr class="mv-md">
+    {{> components/search.hbs }}
+    <section class="big-section">
+      <h2>Browse by category</h2>
+      {{#if categories}}
+        <ul class="category-list">
+          {{#each categories}}
+            <li><a href="categories/{{slug this}}.html">{{this}}</a></li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p>No categories available.</p>
+      {{/if}}
+    </section>
+</div>
+{{/layouts/main.hbs}}

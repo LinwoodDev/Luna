@@ -17,7 +17,7 @@ This pack provides a collection of reusable components and styles tailored for n
 Easily integrate these elements to build rich and consistent note interfaces.
 """
 
-sponsor = "Nonsense Sponsor"
+sponsor = "https://nonsense.example.com"
 source = "https://nonsense.example.com"
 website = "https://nonsense.example.com"
 
@@ -44,3 +44,7 @@ name = "1.0"
 changes = "Nothing"
 download_url = "https://example.com"
 sha256 = "test"
+
+[links]
+Homepage = "https://example.com/testasset"
+Issues = "https://example.com/testasset/issues"

@@ -50,6 +50,8 @@ pub struct RepositoryInfo {
     pub privacy: Option<String>,
     #[serde(default)]
     pub links: HashMap<String, String>,
+    #[serde(default)]
+    pub navbar_links: HashMap<String, String>,
 }
 
 impl Named for RepositoryInfo {

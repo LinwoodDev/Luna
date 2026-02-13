@@ -26,3 +26,7 @@ Bluesky="https://bsky.app/profile/linwood.dev"
 Mastodon="https://floss.social/@linwood"
 Matrix="https://go.linwood.dev/matrix"
 Discord="https://go.linwood.dev/discord"
+
+[navbar_links]
+GitHub="https://github.com/LinwoodDev/Luna"
+Docs="https://luna.linwood.dev/docs/v1/intro"

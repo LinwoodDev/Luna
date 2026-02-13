@@ -1,6 +1,6 @@
 use clap::ValueEnum;
 use sha2::{Digest, Sha256};
-use std::{fs, io::Write, path::Path};
+use std::{fs, io::Write, path::{Path, PathBuf}};
 
 use handlebars::handlebars_helper;
 use luna_api::models::{RepositoryData, asset::Version};
@@ -87,11 +87,70 @@ fn build_engine() -> Result<HandlebarsTemplateEngine<'static>, DocsError> {
     engine.registry().register_helper("dec", Box::new(dec));
     engine.registry().register_helper("sub", Box::new(sub));
     engine.registry().register_helper("slug", Box::new(slug));
-    engine
-        .registry()
-        .register_embed_templates::<Templates>()
-        .map_err(|e| DocsError::Template(Box::new(e)))?;
+    register_embed_templates(&mut engine)?;
     Ok(engine)
+}
+
+fn register_embed_templates(engine: &mut HandlebarsTemplateEngine<'static>) -> Result<(), DocsError> {
+    for file in Templates::iter() {
+        let path = file.as_ref();
+        let content = Templates::get(path).unwrap();
+        let content = std::str::from_utf8(&content.data)
+            .map_err(|e| DocsError::Template(Box::new(e)))?;
+        engine
+            .registry()
+            .register_template_string(path, content)
+            .map_err(|e| DocsError::Template(Box::new(e)))?;
+    }
+
+    Ok(())
+}
+
+fn register_custom_templates(
+    engine: &mut HandlebarsTemplateEngine<'static>,
+    custom_root: Option<&Path>,
+) -> Result<(), DocsError> {
+
+    let Some(custom_root) = custom_root else {
+        return Ok(());
+    };
+    if !custom_root.exists() {
+        return Ok(());
+    }
+
+    for file in collect_files(custom_root)? {
+        if file.extension().and_then(|e| e.to_str()) != Some("hbs") {
+            continue;
+        }
+        let rel_path = file
+            .strip_prefix(custom_root)
+            .map_err(std::io::Error::other)?;
+        let template_name = rel_path.to_string_lossy().replace('\\', "/");
+        let content = fs::read_to_string(&file)?;
+        engine
+            .registry()
+            .register_template_string(&template_name, content)
+            .map_err(|e| DocsError::Template(Box::new(e)))?;
+    }
+
+    Ok(())
+}
+
+fn collect_files(path: &Path) -> Result<Vec<PathBuf>, DocsError> {
+    let mut files = Vec::new();
+    if !path.exists() {
+        return Ok(files);
+    }
+    for entry in fs::read_dir(path)? {
+        let entry = entry?;
+        let entry_path = entry.path();
+        if entry_path.is_dir() {
+            files.extend(collect_files(&entry_path)?);
+        } else {
+            files.push(entry_path);
+        }
+    }
+    Ok(files)
 }
 
 fn bundle_assets(
@@ -252,6 +311,7 @@ pub fn generate_docs(
     output: String,
     page_size: usize,
     bundle: BundleStrategy,
+    custom_root: Option<String>,
 ) -> Result<(), DocsError> {
     let output_path = Path::new(&output);
     if !output_path.exists() {
@@ -267,7 +327,9 @@ pub fn generate_docs(
     let _ = page_size;
     let mut router = LunaRouter::new();
     let root = "/".to_string();
-    let engine = build_engine()?;
+    let custom_root = custom_root.map(PathBuf::from);
+    let mut engine = build_engine()?;
+    register_custom_templates(&mut engine, custom_root.as_deref())?;
 
     let add_route = |router: &mut LunaRouter,
                      path: &str,
@@ -459,13 +521,13 @@ pub fn generate_docs(
         }
     }
 
-    copy_public(&output)?;
+    copy_public(&output, custom_root.as_deref())?;
     router.generate(&output)?;
 
     Ok(())
 }
 
-fn copy_public(output: &str) -> Result<(), DocsError> {
+fn copy_public(output: &str, custom_root: Option<&Path>) -> Result<(), DocsError> {
     for file in Public::iter() {
         let path = file.as_ref();
         let content = Public::get(path).unwrap();
@@ -477,5 +539,20 @@ fn copy_public(output: &str) -> Result<(), DocsError> {
         let mut file = fs::File::create(path)?;
         file.write_all(&content.data)?;
     }
+
+    if let Some(custom_root) = custom_root {
+        let public_root = custom_root.join("public");
+        for file in collect_files(&public_root)? {
+            let rel = file
+                .strip_prefix(&public_root)
+                .map_err(std::io::Error::other)?;
+            let target = Path::new(output).join(rel);
+            if let Some(parent) = target.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::copy(file, target)?;
+        }
+    }
+
     Ok(())
 }

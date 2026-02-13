@@ -53,10 +53,9 @@ Current todos:
   - [x] Asset items
 - [x] Filtering
 - [ ] Sorting
-- [ ] More customization options
-  - [ ] Custom templates
-  - [ ] Custom navbar links
-  - [ ] Custom links on the resource page
+- [x] More customization options
+  - [x] Custom templates
+  - [x] Custom navbar links
 - [x] Categories
 - [ ] More language library support
   - [ ] Dart
@@ -78,6 +77,23 @@ steps:
 ```
 
 If you only want to generate the index or docs separately, you can use the `generate` or `docs` commands.
+
+### Custom docs templates and public files
+
+You can override the built-in Handlebars templates and bundled public files by passing a custom root directory:
+
+```bash
+luna docs output/docs output/index.json --custom-root custom-docs
+```
+
+Supported override structure inside `custom-docs`:
+
+- `templates/**/*.hbs`
+- `components/**/*.hbs`
+- `layouts/**/*.hbs`
+- `public/**/*` (for files like `search.js`, `download.js`, `main.css`, ...)
+
+Only files you provide are overridden; all other files still use Luna defaults.
 
 ## Contributing
 
