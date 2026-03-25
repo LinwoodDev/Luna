@@ -1,3 +1,4 @@
+mod create;
 mod directory;
 mod docs;
 mod generator;
@@ -26,6 +27,9 @@ enum Commands {
         #[arg(default_value = "output/index.json")]
         path: String,
     },
+    /// Create new files
+    #[command(subcommand)]
+    Create(CreateCommands),
     /// Inspect the current repository
     Get(InspectArgs),
     /// Generate an index file out of the current repository
@@ -33,7 +37,6 @@ enum Commands {
         /// The path where the index file should get generated.
         #[arg(default_value = "output/index.json")]
         path: String,
-
     },
     /// Generate documentation for the current index file
     Docs(DocsArgs),
@@ -41,6 +44,26 @@ enum Commands {
     Build(DocsArgs),
     /// Preview the generated documentation
     Preview(PreviewArgs),
+}
+
+#[derive(Subcommand)]
+enum CreateCommands {
+    /// Create a new repository configuration file (config.toml)
+    Repository(CreateRepositoryArgs),
+}
+
+#[derive(Args)]
+struct CreateRepositoryArgs {
+    #[arg(short, long)]
+    name: Option<String>,
+    #[arg(short, long)]
+    description: Option<String>,
+    /// The path of the repository
+    #[arg(short, long, default_value = ".")]
+    path: String,
+    /// Overwrite the file if it already exists.
+    #[arg(short, long)]
+    force: bool,
 }
 
 #[derive(Args)]
@@ -98,25 +121,39 @@ fn main() -> Result<()> {
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
+        Commands::Create(create_command) => create::create(create_command)?,
         Commands::Generate { path } => generate(path.to_owned())?,
-        Commands::Docs(args) => docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone(), args.custom_root.to_owned())?,
+        Commands::Docs(args) => docs(
+            args.path.to_owned(),
+            args.index.to_owned(),
+            args.page_size,
+            args.bundle.clone(),
+            args.custom_root.to_owned(),
+        )?,
         Commands::Build(args) => {
             generate(args.index.to_owned())?;
-            docs(args.path.to_owned(), args.index.to_owned(), args.page_size, args.bundle.clone(), args.custom_root.to_owned())?;
+            docs(
+                args.path.to_owned(),
+                args.index.to_owned(),
+                args.page_size,
+                args.bundle.clone(),
+                args.custom_root.to_owned(),
+            )?;
         }
         Commands::Preview(args) => preview(args.path.to_owned(), args.port)?,
         Commands::Index { args, path } => {
             let index_content = std::fs::read_to_string(path)
                 .with_context(|| format!("Could not read index file {path}"))?;
 
-            let data = RepositoryData::from_index(&index_content)
-                .context("Could not parse index file")?;
+            let data =
+                RepositoryData::from_index(&index_content).context("Could not parse index file")?;
 
             inspect(&data, args)?;
         }
         Commands::Get(args) => {
             let directory = directory::RepositoryDirectory::default();
-            let data = directory.generate_index()
+            let data = directory
+                .generate_index()
                 .context("Error while generating index")?;
 
             inspect(&data, args)?;
@@ -157,12 +194,17 @@ fn inspect(data: &RepositoryData, args: &InspectArgs) -> Result<()> {
     Ok(())
 }
 
-fn docs(path: String, index: String, page_size: usize, bundle: docs::BundleStrategy, custom_root: Option<String>) -> Result<()> {
+fn docs(
+    path: String,
+    index: String,
+    page_size: usize,
+    bundle: docs::BundleStrategy,
+    custom_root: Option<String>,
+) -> Result<()> {
     let index_content = std::fs::read_to_string(&index)
         .with_context(|| format!("Could not read index file {index}"))?;
 
-    let data = RepositoryData::from_index(&index_content)
-        .context("Could not parse index file")?;
+    let data = RepositoryData::from_index(&index_content).context("Could not parse index file")?;
 
     docs::generate_docs(&data, path, page_size, bundle, custom_root)
         .context("Error while generating docs")?;
@@ -178,7 +220,8 @@ fn generate(path: String) -> Result<()> {
     }
 
     let directory = directory::RepositoryDirectory::default();
-    let data = directory.generate_index()
+    let data = directory
+        .generate_index()
         .context("Error while generating index")?;
 
     let mut file = File::create(&path).context("Cannot create file")?;
