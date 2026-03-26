@@ -1,9 +1,9 @@
 use std::{fs::File, io::Write};
 
 use anyhow::Context;
-use luna_api::models::{RepositoryData, RepositoryInfo};
+use luna_api::models::{RepositoryData, RepositoryInfo, asset::Author};
 
-use crate::{CreateCommands, CreateRepositoryArgs};
+use crate::{CreateAuthorArgs, CreateCommands, CreateRepositoryArgs};
 
 pub fn create_repository(args: &CreateRepositoryArgs) -> anyhow::Result<()> {
     let repository_path = std::path::Path::new(&args.path);
@@ -29,11 +29,50 @@ pub fn create_repository(args: &CreateRepositoryArgs) -> anyhow::Result<()> {
         )
     })?;
     file.write_all(toml.as_bytes())?;
+    println!(
+        "Repository configuration file created at {}",
+        repository_path.display()
+    );
     Ok(())
 }
+
+
+pub fn create_author(args: &CreateAuthorArgs) -> anyhow::Result<()> {
+    let author = Author {
+        name: args.name.clone(),
+        display_name: args.display_name.clone(),
+        avatar_url: args.avatar_url.clone(),
+        description: args.description.clone(),
+        email: args.email.clone(),
+        links: args.links.clone(),
+    };
+    let toml = toml::to_string(&author)?;
+    let author_path = std::path::Path::new(&args.path).join("content").join(&args.name);
+    std::fs::create_dir_all(&author_path).with_context(|| {
+        format!(
+            "Failed to create directories for author at {}",
+            author_path.display()
+        )
+    })?;
+    let mut file = File::create(author_path.join("author.toml")).with_context(|| {
+        format!(
+            "Failed to create author file at {}",
+            author_path.display()
+        )
+    })?;
+    file.write_all(toml.as_bytes())?;
+    println!(
+        "Author file created at {}",
+        author_path.display()
+    );
+
+    Ok(())
+}
+
 
 pub fn create(create_command: &CreateCommands) -> anyhow::Result<()> {
     match create_command {
         CreateCommands::Repository(args) => create_repository(args),
+        CreateCommands::Author(args) => create_author(args),
     }
 }

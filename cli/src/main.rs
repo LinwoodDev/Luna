@@ -50,12 +50,60 @@ enum Commands {
 enum CreateCommands {
     /// Create a new repository configuration file (config.toml)
     Repository(CreateRepositoryArgs),
+    /// Create a new author file (content/{author}/author.toml)
+    Author(CreateAuthorArgs),
 }
 
 #[derive(Args)]
 struct CreateRepositoryArgs {
+    /// The name of the repository. Defaults to the name of the created directory.
     #[arg(short, long)]
     name: Option<String>,
+    /// The description of the repository.
+    #[arg(short, long)]
+    description: Option<String>,
+    /// The path of the repository
+    #[arg(short, long, default_value = ".")]
+    path: String,
+    /// Overwrite the file if it already exists.
+    #[arg(short, long)]
+    force: bool,
+}
+
+#[derive(Args)]
+struct CreateAuthorArgs {
+    /// The name of the author.
+    #[arg()]
+    name: String,
+    // The display name of the author.
+    #[arg(short, long)]
+    display_name: Option<String>,
+    /// THe avatar URL of the author.
+    #[arg(short, long)]
+    avatar_url: Option<String>,
+    /// The description of the author.
+    #[arg(short, long)]
+    description: Option<String>,
+    /// The email of the author.
+    #[arg(short, long)]
+    email: Option<String>,
+    /// Links related to the author.
+    #[arg(short, long)]
+    links: Vec<String>,
+    /// The path of the repository
+    #[arg(short, long, default_value = ".")]
+    path: String,
+    /// Overwrite the file if it already exists.
+    #[arg(short, long)]
+    force: bool,
+}
+
+#[derive(Args)]
+struct CreateAssetArgs {
+    /// The name of the asset.
+    #[arg()]
+    name: String,
+    /// The description of the asset.
     #[arg(short, long)]
     description: Option<String>,
     /// The path of the repository

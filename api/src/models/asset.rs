@@ -38,7 +38,7 @@ pub struct Author {
     pub display_name: Option<String>,
     pub avatar_url: Option<String>,
     pub description: Option<String>,
-    pub email: String,
+    pub email: Option<String>,
     pub links: Vec<String>,
 }
 
