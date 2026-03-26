@@ -52,6 +52,8 @@ enum CreateCommands {
     Repository(CreateRepositoryArgs),
     /// Create a new author file (content/{author}/author.toml)
     Author(CreateAuthorArgs),
+    /// Create a new asset file (content/{author}/{name}/asset.toml)
+    Asset(CreateAssetArgs),
 }
 
 #[derive(Args)]

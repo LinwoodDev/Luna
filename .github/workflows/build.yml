@@ -38,7 +38,7 @@ jobs:
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: matrix.project == 'cli'
         with:
           name: cli-artifacts
@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download CLI artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: cli-artifacts
           path: example/cli

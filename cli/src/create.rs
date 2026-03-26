@@ -1,9 +1,9 @@
 use std::{fs::File, io::Write};
 
 use anyhow::Context;
-use luna_api::models::{RepositoryData, RepositoryInfo, asset::Author};
+use luna_api::models::{RepositoryData, RepositoryInfo, asset::{Asset, Author}};
 
-use crate::{CreateAuthorArgs, CreateCommands, CreateRepositoryArgs};
+use crate::{CreateAssetArgs, CreateAuthorArgs, CreateCommands, CreateRepositoryArgs};
 
 pub fn create_repository(args: &CreateRepositoryArgs) -> anyhow::Result<()> {
     let repository_path = std::path::Path::new(&args.path);
@@ -54,6 +54,13 @@ pub fn create_author(args: &CreateAuthorArgs) -> anyhow::Result<()> {
             author_path.display()
         )
     })?;
+    let file_path = author_path.join("author.toml");
+    if file_path.exists() && !args.force {
+        return Err(anyhow::anyhow!(
+            "Author file already exists at {}. Use --force to overwrite.",
+            file_path.display()
+        ));
+    }
     let mut file = File::create(author_path.join("author.toml")).with_context(|| {
         format!(
             "Failed to create author file at {}",
@@ -69,10 +76,53 @@ pub fn create_author(args: &CreateAuthorArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn create_asset(args: &CreateAssetArgs) -> anyhow::Result<()> {
+    let asset = Asset {
+        name: args.name.clone(),
+        description: args.description.clone(),
+        ..Default::default()
+    };
+    let toml = toml::to_string(&asset)?;
+    let author_path = std::path::Path::new(&args.path).join("content").join(&args.name);
+    if !author_path.exists() {
+        return Err(anyhow::anyhow!(
+            "Author directory does not exist at {}",
+            author_path.display()
+        ));
+    }
+    let asset_path = author_path.join("assets").join(&args.name);
+    std::fs::create_dir_all(&asset_path).with_context(|| {
+        format!(
+            "Failed to create directories for asset at {}",
+            asset_path.display()
+        )
+    })?;
+    let file_path = asset_path.join("asset.toml");
+    if file_path.exists() && !args.force {
+        return Err(anyhow::anyhow!(
+            "Asset file already exists at {}. Use --force to overwrite.",
+            file_path.display()
+        ));
+    }
+    let mut file = File::create(file_path).with_context(|| {
+        format!(
+            "Failed to create asset file at {}",
+            asset_path.display()
+        )
+    })?;
+    file.write_all(toml.as_bytes())?;
+    println!(
+        "Asset file created at {}",
+        asset_path.display()
+    );
+    Ok(())
+}
+
 
 pub fn create(create_command: &CreateCommands) -> anyhow::Result<()> {
     match create_command {
         CreateCommands::Repository(args) => create_repository(args),
         CreateCommands::Author(args) => create_author(args),
+        CreateCommands::Asset(args) => create_asset(args),
     }
 }
