@@ -78,12 +78,14 @@ pub fn create_author(args: &CreateAuthorArgs) -> anyhow::Result<()> {
 
 pub fn create_asset(args: &CreateAssetArgs) -> anyhow::Result<()> {
     let asset = Asset {
+        author: args.author.clone(),
         name: args.name.clone(),
+        id: format!("{}/{}", args.author, args.name),
         description: args.description.clone(),
         ..Default::default()
     };
     let toml = toml::to_string(&asset)?;
-    let author_path = std::path::Path::new(&args.path).join("content").join(&args.name);
+    let author_path = std::path::Path::new(&args.path).join("content").join(&args.author);
     if !author_path.exists() {
         return Err(anyhow::anyhow!(
             "Author directory does not exist at {}",

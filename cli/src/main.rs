@@ -102,6 +102,9 @@ struct CreateAuthorArgs {
 
 #[derive(Args)]
 struct CreateAssetArgs {
+    /// The name of the author.
+    #[arg()]
+    author: String,
     /// The name of the asset.
     #[arg()]
     name: String,
