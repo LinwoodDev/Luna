@@ -1,37 +1,42 @@
 {{#> layouts/main.hbs title=asset.name active_page="" }}
-<section class="pb-sm card paper mb-md gap-xs p-sm" aria-label="Asset Header">
-    <div class="row wrap align-start justify-between">
-        <h1 class="flex">{{asset.name}}</h1>
-        <a class="btn primary {{#if (eq activeTab 'download')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/download.html">Download {{asset.current_version.name}}</a>
+<section class="pb-sm row wrap mb-md gap-sm" aria-label="Asset Header">
+  <div class="card paper p-sm min-w-md flex-3">
+    <div class="row wrap align-start justify-between gap-sm">
+      <h1 class="flex m-none">{{asset.name}}</h1>
     </div>
     <p class="m-none">by <a href="{{asset.author}}">{{asset.author}}</a></p>
     {{#if asset.categories}}
-      <div class="row gap-xs">
+      <div class="row gap-xs wrap align-center">
         <p class="m-none">Categories:</p>
-        <ul class="row gap-xs align-center">
+        <ul class="row gap-xs align-center m-none p-none" style="list-style: none;">
           {{#each asset.categories}}
             <li><a class="badge" href="categories/{{slug this}}.html">{{this}}</a></li>
           {{/each}}
         </ul>
       </div>
     {{/if}}
-    <nav aria-label="Asset navigation" class="row wrap justify-between">
-        <ul class="row wrap gap-xs">
-            <li><a class="btn {{#if (eq activeTab 'home')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}">Home</a></li>
-            <li><a class="btn {{#if (eq activeTab 'changes')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>
-        </ul>
-        <ul class="row wrap gap-xs">
-          {{#if asset.website}}
-          <a class="btn secondary" href="{{asset.website}}" target="_blank" rel="noopener noreferrer">Website</a>
-          {{/if}}
-          {{#if asset.source}}
-          <a class="btn secondary" href="{{asset.source}}" target="_blank" rel="noopener noreferrer">Source</a>
-          {{/if}}
-          {{#if asset.sponsor}}
-          <a class="btn secondary" href="{{asset.sponsor}}" target="_blank" rel="noopener noreferrer">Sponsor</a>
-          {{/if}}
-        </ul>
+    <nav aria-label="Asset navigation" class="row wrap justify-between gap-sm">
+      <ul class="row wrap gap-xs m-none p-none justify-between" style="list-style: none;">
+        <li><a class="btn {{#if (eq activeTab 'home')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}">Home</a></li>
+        <li><a class="btn {{#if (eq activeTab 'changes')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>
+      </ul>
     </nav>
+  </div>
+  <div class="card paper p-sm min-w-md flex-1 col">
+      <a class="btn primary {{#if (eq activeTab 'download')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/download.html">Download {{asset.current_version.name}}</a>
+    <ul class="col wrap gap-xs m-none p-none flex justify-end" style="list-style: none;">
+      {{#if asset.website}}
+        <li><a class="btn secondary" href="{{asset.website}}" target="_blank" rel="noopener noreferrer">Website</a></li>
+      {{/if}}
+      {{#if asset.source}}
+        <li><a class="btn secondary" href="{{asset.source}}" target="_blank" rel="noopener noreferrer">Source</a></li>
+      {{/if}}
+      {{#if asset.sponsor}}
+        <li><a class="btn secondary" href="{{asset.sponsor}}" target="_blank" rel="noopener noreferrer">Sponsor</a></li>
+      {{/if}}
+    </ul>
+  </div>
 </section>
+
 {{> @partial-block }}
 {{/layouts/main.hbs}}
