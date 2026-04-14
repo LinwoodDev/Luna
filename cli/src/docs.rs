@@ -1,4 +1,5 @@
 use clap::ValueEnum;
+use digest_io::IoWrapper;
 use sha2::{Digest, Sha256};
 use std::{fs, io::Write, path::{Path, PathBuf}};
 
@@ -269,9 +270,9 @@ fn download_asset(
 
 fn calculate_sha256(path: &Path) -> Result<String, DocsError> {
     let mut file = fs::File::open(path)?;
-    let mut hasher = Sha256::new();
+    let mut hasher = IoWrapper(Sha256::new());
     std::io::copy(&mut file, &mut hasher)?;
-    Ok(hex::encode(hasher.finalize()))
+    Ok(hex::encode(hasher.0.finalize()))
 }
 
 fn url_filename(url: &str) -> Option<String> {
