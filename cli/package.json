@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@11.0.0-rc.0",
   "dependencies": {
     "@linwooddev/style": "^0.4.2"
   }
