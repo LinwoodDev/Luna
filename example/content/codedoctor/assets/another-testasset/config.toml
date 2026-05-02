@@ -1,9 +1,9 @@
 name = "another-testasset"
 author = "codedoctor"
-id = "LEL"
-categories = ["example"]
-summary = "An another test asset for demonstration"
-description = "This is a long description with details about the asset's functionality and usage."
+id = "codedoctor/another-testasset"
+categories = ["texture-pack"]
+summary = "A compact texture pack example for Luna consumers"
+description = "This asset demonstrates a second compatible pack with a local download path and checksum."
 source = "https://github.com/CodeDoctorDE"
 website = "https://example.com/testasset"
 
@@ -11,7 +11,7 @@ previous_versions = []
 
 [current_version]
 name = "1.0"
-changes = "Nothing"
+changes = "Initial texture pack release"
 download_url = "/favicon.ico"
 sha256 = "bd3166d15db9bf183cb85087883019d2de69082db5ea9908531dbd3c227c9821"
 

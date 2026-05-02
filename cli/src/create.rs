@@ -1,7 +1,10 @@
 use std::{fs::File, io::Write};
 
 use anyhow::Context;
-use luna_api::models::{RepositoryData, RepositoryInfo, asset::{Asset, Author}};
+use luna_api::models::{
+    RepositoryInfo,
+    asset::{Asset, Author},
+};
 
 use crate::{CreateAssetArgs, CreateAuthorArgs, CreateCommands, CreateRepositoryArgs};
 
@@ -11,18 +14,25 @@ pub fn create_repository(args: &CreateRepositoryArgs) -> anyhow::Result<()> {
         .file_name()
         .and_then(|name| name.to_str())
         .unwrap_or("my-repository");
-    let repository = RepositoryData {
-        info: RepositoryInfo {
-            name: directory_name.to_string(),
-            description: args.description.clone(),
-            ..Default::default()
-        },
+    let repository = RepositoryInfo {
+        name: args
+            .name
+            .clone()
+            .unwrap_or_else(|| directory_name.to_string()),
+        description: args.description.clone(),
         ..Default::default()
     };
     let toml = toml::to_string(&repository)?;
-        std::fs::create_dir_all(repository_path)
-            .with_context(|| format!("Failed to create parent directories for {}", args.path))?;
-    let mut file = File::create(repository_path.join("config.toml")).with_context(|| {
+    std::fs::create_dir_all(repository_path)
+        .with_context(|| format!("Failed to create parent directories for {}", args.path))?;
+    let file_path = repository_path.join("config.toml");
+    if file_path.exists() && !args.force {
+        return Err(anyhow::anyhow!(
+            "Repository configuration file already exists at {}. Use --force to overwrite.",
+            file_path.display()
+        ));
+    }
+    let mut file = File::create(file_path).with_context(|| {
         format!(
             "Failed to create repository configuration file at {}",
             args.path
@@ -36,7 +46,6 @@ pub fn create_repository(args: &CreateRepositoryArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
-
 pub fn create_author(args: &CreateAuthorArgs) -> anyhow::Result<()> {
     let author = Author {
         name: args.name.clone(),
@@ -47,31 +56,26 @@ pub fn create_author(args: &CreateAuthorArgs) -> anyhow::Result<()> {
         links: args.links.clone(),
     };
     let toml = toml::to_string(&author)?;
-    let author_path = std::path::Path::new(&args.path).join("content").join(&args.name);
+    let author_path = std::path::Path::new(&args.path)
+        .join("content")
+        .join(&args.name);
     std::fs::create_dir_all(&author_path).with_context(|| {
         format!(
             "Failed to create directories for author at {}",
             author_path.display()
         )
     })?;
-    let file_path = author_path.join("author.toml");
+    let file_path = author_path.join("config.toml");
     if file_path.exists() && !args.force {
         return Err(anyhow::anyhow!(
             "Author file already exists at {}. Use --force to overwrite.",
             file_path.display()
         ));
     }
-    let mut file = File::create(author_path.join("author.toml")).with_context(|| {
-        format!(
-            "Failed to create author file at {}",
-            author_path.display()
-        )
-    })?;
+    let mut file = File::create(file_path)
+        .with_context(|| format!("Failed to create author file at {}", author_path.display()))?;
     file.write_all(toml.as_bytes())?;
-    println!(
-        "Author file created at {}",
-        author_path.display()
-    );
+    println!("Author file created at {}", author_path.display());
 
     Ok(())
 }
@@ -85,7 +89,9 @@ pub fn create_asset(args: &CreateAssetArgs) -> anyhow::Result<()> {
         ..Default::default()
     };
     let toml = toml::to_string(&asset)?;
-    let author_path = std::path::Path::new(&args.path).join("content").join(&args.author);
+    let author_path = std::path::Path::new(&args.path)
+        .join("content")
+        .join(&args.author);
     if !author_path.exists() {
         return Err(anyhow::anyhow!(
             "Author directory does not exist at {}",
@@ -106,20 +112,12 @@ pub fn create_asset(args: &CreateAssetArgs) -> anyhow::Result<()> {
             file_path.display()
         ));
     }
-    let mut file = File::create(file_path).with_context(|| {
-        format!(
-            "Failed to create asset file at {}",
-            asset_path.display()
-        )
-    })?;
+    let mut file = File::create(file_path)
+        .with_context(|| format!("Failed to create asset file at {}", asset_path.display()))?;
     file.write_all(toml.as_bytes())?;
-    println!(
-        "Asset file created at {}",
-        asset_path.display()
-    );
+    println!("Asset file created at {}", asset_path.display());
     Ok(())
 }
-
 
 pub fn create(create_command: &CreateCommands) -> anyhow::Result<()> {
     match create_command {

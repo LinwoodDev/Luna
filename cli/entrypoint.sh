@@ -25,6 +25,16 @@ elif [ "$COMMAND" = "docs" ] || [ "$COMMAND" = "build" ]; then
     if [ -n "$INPUT_PAGE_SIZE" ]; then
         CMD="$CMD --page-size $INPUT_PAGE_SIZE"
     fi
+    if [ -n "$INPUT_BUNDLE" ]; then
+        CMD="$CMD --bundle $INPUT_BUNDLE"
+    fi
+    if [ -n "$INPUT_CUSTOM_ROOT" ]; then
+        CMD="$CMD --custom-root $INPUT_CUSTOM_ROOT"
+    fi
+elif [ "$COMMAND" = "check" ] || [ "$COMMAND" = "validate" ]; then
+    if [ -n "$INPUT_PATH" ]; then
+        CMD="$CMD --path $INPUT_PATH"
+    fi
 fi
 
 echo "Running: $CMD"

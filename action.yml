@@ -6,7 +6,7 @@ branding:
   color: 'green'
 inputs:
   command:
-    description: 'Command to run (generate, docs, build, index, get)'
+    description: 'Command to run (generate, docs, build, check, schema, index, get)'
     required: false
     default: 'generate'
   path:
@@ -17,6 +17,12 @@ inputs:
     required: false
   page_size:
     description: 'Page size (only for docs command)'
+    required: false
+  bundle:
+    description: 'Bundling strategy for docs/build (none, images, all)'
+    required: false
+  custom_root:
+    description: 'Custom docs root containing templates, components, layouts, and public files'
     required: false
   args:
     description: 'Raw arguments to pass to the CLI (overrides other inputs)'

@@ -5,7 +5,7 @@ mod generator;
 
 use anyhow::{Context, Result};
 use clap::{Args, Parser, Subcommand};
-use luna_api::models::RepositoryData;
+use luna_api::models::{RepositoryData, schema};
 use std::fs::File;
 use std::io::Write;
 
@@ -30,8 +30,18 @@ enum Commands {
     /// Create new files
     #[command(subcommand)]
     Create(CreateCommands),
+    /// Create a new repository configuration file (alias for create repository)
+    Init(CreateRepositoryArgs),
     /// Inspect the current repository
     Get(InspectArgs),
+    /// Validate the current repository
+    #[command(visible_alias = "validate")]
+    Check(RepositoryPathArgs),
+    /// Print or write the Luna index JSON Schema
+    Schema {
+        /// Optional output path. Prints to stdout when omitted.
+        path: Option<String>,
+    },
     /// Generate an index file out of the current repository
     Generate {
         /// The path where the index file should get generated.
@@ -50,9 +60,9 @@ enum Commands {
 enum CreateCommands {
     /// Create a new repository configuration file (config.toml)
     Repository(CreateRepositoryArgs),
-    /// Create a new author file (content/{author}/author.toml)
+    /// Create a new author file (content/{author}/config.toml)
     Author(CreateAuthorArgs),
-    /// Create a new asset file (content/{author}/{name}/asset.toml)
+    /// Create a new asset file (content/{author}/assets/{name}/config.toml)
     Asset(CreateAssetArgs),
 }
 
@@ -120,6 +130,13 @@ struct CreateAssetArgs {
 }
 
 #[derive(Args)]
+struct RepositoryPathArgs {
+    /// The path of the repository
+    #[arg(short, long, default_value = ".")]
+    path: String,
+}
+
+#[derive(Args)]
 struct PreviewArgs {
     /// The path where the docs are generated.
     #[arg(default_value = "output/docs")]
@@ -175,6 +192,21 @@ fn main() -> Result<()> {
     // matches just as you would the top level cmd
     match &cli.command {
         Commands::Create(create_command) => create::create(create_command)?,
+        Commands::Init(args) => create::create_repository(args)?,
+        Commands::Check(args) => check(args.path.to_owned())?,
+        Commands::Schema { path } => {
+            let schema = schema::index_schema_pretty()?;
+            if let Some(path) = path {
+                let path = std::path::PathBuf::from(path);
+                if let Some(parent) = path.parent() {
+                    std::fs::create_dir_all(parent).context("Could not create schema directory")?;
+                }
+                std::fs::write(&path, schema).context("Could not write schema file")?;
+                println!("Successfully generated schema file at {path:?}.");
+            } else {
+                println!("{schema}");
+            }
+        }
         Commands::Generate { path } => generate(path.to_owned())?,
         Commands::Docs(args) => docs(
             args.path.to_owned(),
@@ -258,6 +290,7 @@ fn docs(
         .with_context(|| format!("Could not read index file {index}"))?;
 
     let data = RepositoryData::from_index(&index_content).context("Could not parse index file")?;
+    data.validate().context("Index validation failed")?;
 
     docs::generate_docs(&data, path, page_size, bundle, custom_root)
         .context("Error while generating docs")?;
@@ -276,6 +309,7 @@ fn generate(path: String) -> Result<()> {
     let data = directory
         .generate_index()
         .context("Error while generating index")?;
+    data.validate().context("Repository validation failed")?;
 
     let mut file = File::create(&path).context("Cannot create file")?;
     let json = data.to_index().context("Could not generate json")?;
@@ -283,6 +317,20 @@ fn generate(path: String) -> Result<()> {
         .context("Could not write file")?;
 
     println!("Successfully generated index file at {path:?}.");
+    Ok(())
+}
+
+fn check(path: String) -> Result<()> {
+    let directory = directory::RepositoryDirectory::new(Some(&path));
+    let data = directory
+        .generate_index()
+        .context("Error while generating index")?;
+    data.validate().context("Repository validation failed")?;
+    println!(
+        "Repository is valid: {} author(s), {} asset(s).",
+        data.authors.len(),
+        data.assets.len()
+    );
     Ok(())
 }
 

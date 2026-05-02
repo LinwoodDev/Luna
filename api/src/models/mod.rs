@@ -1,8 +1,11 @@
 pub mod asset;
+pub mod schema;
+pub mod validation;
 
 use std::collections::HashMap;
 
 use asset::*;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 const FILE_VERSION: u8 = 1;
@@ -11,7 +14,7 @@ pub trait Named {
     fn name(&self) -> &str;
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct RepositoryData {
     pub assets: Vec<Asset>,
     pub authors: Vec<Author>,
@@ -37,7 +40,7 @@ impl Named for RepositoryData {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
 pub struct RepositoryInfo {
     pub name: String,
     pub summary: Option<String>,
@@ -70,5 +73,9 @@ impl RepositoryData {
 
     pub fn to_index(&self) -> serde_json::Result<String> {
         serde_json::to_string(&self)
+    }
+
+    pub fn validate(&self) -> Result<(), validation::ValidationErrors> {
+        validation::validate_repository(self)
     }
 }

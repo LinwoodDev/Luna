@@ -1,8 +1,8 @@
 name = "testasset"
 author = "codedoctor"
-id = "LEL"
-categories = ["example"]
-summary = "A UI component and style pack for note-taking apps featuring headings, paragraphs, graphs, and more"
+id = "codedoctor/testasset"
+categories = ["template"]
+summary = "A UI component and style pack for note-taking apps featuring headings, paragraphs, graphs, and callouts"
 description = """
 
 This pack provides a collection of reusable components and styles tailored for note-taking applications.
@@ -40,10 +40,10 @@ download_url = "https://nonsense.example.com/v1.0/download"
 sha256 = "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd"
 
 [current_version]
-name = "1.0"
-changes = "Nothing"
-download_url = "https://example.com"
-sha256 = "test"
+name = "3.0"
+changes = "Adds refreshed note components and app compatibility metadata"
+download_url = "https://example.com/codedoctor/testasset/3.0/download.zip"
+sha256 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 
 [links]
 Homepage = "https://example.com/testasset"

@@ -4,7 +4,7 @@
 
 # Luna
 
-> WIP: Library for Universal Networking Assets
+> WIP: Lightweight Universal Networked Assets
 
 [![Latest release)](https://img.shields.io/github/v/release/LinwoodDev/Luna?color=1CC637&style=for-the-badge&logo=github&logoColor=1CC637)](https://github.com/LinwoodDev/Luna/releases)
 [![GitHub License badge](https://img.shields.io/github/license/LinwoodDev/Luna?color=1CC637&style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSIjZWJiNzMzIiB2aWV3Qm94PSIwIDAgMjU2IDI1NiI%2BPHJlY3Qgd2lkdGg9IjI1NiIgaGVpZ2h0PSIyNTYiIGZpbGw9Im5vbmUiPjwvcmVjdD48cmVjdCB4PSIzMiIgeT0iNDgiIHdpZHRoPSIxOTIiIGhlaWdodD0iMTYwIiByeD0iOCIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlPSIjZWJiNzMzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGZpbGw9Im5vbmUiPjwvcmVjdD48bGluZSB4MT0iNzYiIHkxPSI5NiIgeDI9IjE4MCIgeTI9Ijk2IiBmaWxsPSJub25lIiBzdHJva2U9IiNlYmI3MzMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIxNiI%2BPC9saW5lPjxsaW5lIHgxPSI3NiIgeTE9IjEyOCIgeDI9IjE4MCIgeTI9IjEyOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZWJiNzMzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMTYiPjwvbGluZT48bGluZSB4MT0iNzYiIHkxPSIxNjAiIHgyPSIxODAiIHkyPSIxNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ViYjczMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjE2Ij48L2xpbmU%2BPC9zdmc%2B)](https://github.com/LinwoodDev/Luna/blob/main/LICENSE)
@@ -28,8 +28,9 @@
 
 **This project is still in development and not ready for production use. Please join the matrix or discord server for updates!**
 
-Luna is a build system to enable hosting a static library system for assets.
-It is designed to be flexible with a universal API to allow any app to use it.
+Luna stands for **Lightweight Universal Networked Assets**.
+
+It is a static asset registry generator: you store asset metadata in TOML, Luna builds a versioned JSON index and an optional browsable documentation website. Apps can consume the index without a backend, login system, or custom server.
 Read more in the [documentation](https://luna.linwood.dev/docs/v1/intro).
 
 ## Official Apps
@@ -48,6 +49,8 @@ The API is not yet stable, but the CLI is usable.
 
 Current todos:
 
+- [x] Repository validation (`luna check` / `luna validate`)
+- [x] JSON Schema output (`luna schema`)
 - [x] Implement a bundling system to host assets in the docs
   - [x] Avatars
   - [x] Asset items
@@ -69,12 +72,14 @@ You can use Luna in your GitHub Actions workflow to generate your site.
 ```yaml
 steps:
   - uses: actions/checkout@v6
-  - uses: LinwoodDev/Luna@develop
+  - uses: LinwoodDev/Luna@v0.1.0
     with:
       command: 'build'
       path: 'output/docs'
       index_path: 'output/index.json'
 ```
+
+During development you can pin `@main` or `@develop`, but release tags are the recommended input for reproducible builds.
 
 If you only want to generate the index or docs separately, you can use the `generate` or `docs` commands.
 

@@ -1,7 +1,11 @@
 use clap::ValueEnum;
 use digest_io::IoWrapper;
 use sha2::{Digest, Sha256};
-use std::{fs, io::Write, path::{Path, PathBuf}};
+use std::{
+    fs,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 use handlebars::handlebars_helper;
 use luna_api::models::{RepositoryData, asset::Version};
@@ -92,12 +96,14 @@ fn build_engine() -> Result<HandlebarsTemplateEngine<'static>, DocsError> {
     Ok(engine)
 }
 
-fn register_embed_templates(engine: &mut HandlebarsTemplateEngine<'static>) -> Result<(), DocsError> {
+fn register_embed_templates(
+    engine: &mut HandlebarsTemplateEngine<'static>,
+) -> Result<(), DocsError> {
     for file in Templates::iter() {
         let path = file.as_ref();
         let content = Templates::get(path).unwrap();
-        let content = std::str::from_utf8(&content.data)
-            .map_err(|e| DocsError::Template(Box::new(e)))?;
+        let content =
+            std::str::from_utf8(&content.data).map_err(|e| DocsError::Template(Box::new(e)))?;
         engine
             .registry()
             .register_template_string(path, content)
@@ -111,7 +117,6 @@ fn register_custom_templates(
     engine: &mut HandlebarsTemplateEngine<'static>,
     custom_root: Option<&Path>,
 ) -> Result<(), DocsError> {
-
     let Some(custom_root) = custom_root else {
         return Ok(());
     };

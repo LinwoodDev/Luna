@@ -1,23 +1,22 @@
-name="Hallo"
-summary="Simple data"
+name="Linwood Pack Registry"
+summary="Example Luna registry for app-ready asset packs"
 description="""
-A large block of placeholder markdown using arbitrary text, faux commands, inert links, and illustrative structures. Use this as scaffolding for your own content.
+This repository shows how Luna can publish a static asset registry from TOML files.
+Apps can consume the generated `index.json` directly, while users can browse the generated docs site.
 
 ## Features
 
-- Crisp scaffolding with filler content
-- Configuration-driven layout with dummy values
-- Deterministic pseudo-outputs
-- Pluggable hooks (placeholders only)
-- CI-friendly narrative examples
-- Human-readable notes alongside data
+- Versioned asset metadata
+- Compatibility hints for consuming apps
+- Checksums for downloadable packs
+- Static JSON and optional documentation output
 
 ## Quick Start
 
-Test
+Run `luna build` in this directory, then open `output/docs/index.html` or serve it with `luna preview`.
 
 """
-categories=["example", "data"]
+categories=["texture-pack", "template"]
 imprint="https://linwood.dev/imprint"
 privacy="https://linwood.dev/privacy"
 [links]

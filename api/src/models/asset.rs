@@ -1,9 +1,10 @@
 use crate::models::Named;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use toml::value::Datetime;
 
 // Path: content/{author}/{name}/asset.toml
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
 pub struct Asset {
     pub author: String,
     pub name: String,
@@ -21,10 +22,11 @@ pub struct Asset {
     pub categories: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
 pub struct Version {
     pub name: String,
     pub changes: String,
+    #[schemars(with = "Option<String>")]
     pub published: Option<Datetime>,
     pub download_url: String,
     pub sha256: String,
@@ -32,7 +34,7 @@ pub struct Version {
 }
 
 // Path: content/{author}/author.toml
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
 pub struct Author {
     pub name: String,
     pub display_name: Option<String>,
