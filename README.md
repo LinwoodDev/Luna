@@ -71,7 +71,7 @@ You can use Luna in your GitHub Actions workflow to generate your site.
 
 ```yaml
 steps:
-  - uses: actions/checkout@v6
+  - uses: actions/checkout@v7
   - uses: LinwoodDev/Luna@v0.1.0
     with:
       command: 'build'
