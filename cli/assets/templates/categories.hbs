@@ -1,16 +1,20 @@
-{{#> layouts/main.hbs title="Categories" active_page="home"}}
+{{#> layouts/main.hbs title="Categories" active_page="categories"}}
 <div class="container">
-    <section class="section">
+    <section class="long-section">
         <h1>Categories</h1>
-        <p>Browse all categories in this repository.</p>
+        <p>Browse all {{category_count}} categories in this repository.</p>
     </section>
     <section class="section mt-md">
-        <ul>
+        <ul class="row wrap gap-sm p-none">
           {{#each categories_summaries}}
-            <li>
-              <a href="categories/{{slug name}}.html">{{name}}</a>
-              <span>({{count}})</span>
+            <li class="flex min-w-md">
+              <a class="card secondary no-decoration text row align-center justify-between gap-sm w-full" href="categories/{{slug name}}.html">
+                <span>{{name}}</span>
+                <span class="category-count">{{count}} {{#if (eq count 1)}}asset{{else}}assets{{/if}}</span>
+              </a>
             </li>
+          {{else}}
+            <li class="card paper">No categories are available yet.</li>
           {{/each}}
         </ul>
     </section>

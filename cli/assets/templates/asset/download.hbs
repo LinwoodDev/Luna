@@ -1,13 +1,17 @@
-{{! filepath: c:\Users\wusel\Documents\Projects\Luna\cli\assets\templates\asset\download.hbs }}
 {{#> layouts/asset.hbs activeTab="download"}}
-<section class="card paper">
-  <h1>{{version.name}}</h1>
-  <p>SHA-256 checksum: <code>{{version.sha256}}</code></p>
-  <button id="downloadBtn" class="btn secondary" data-url="{{version.download_url}}"
-    data-sha="{{version.sha256}}">Retry</button>
-  <div id="progressContainer" style="display:none; margin-top:1rem;">
-    <p id="status">Preparing download...</p>
-    <progress id="progress" value="0" max="100" style="width:100%;"></progress>
+<section class="card paper max-w-xl mh-auto mb-xl">
+  <p class="subtitle">Verified download</p>
+  <h1>{{asset.name}} {{version.name}}</h1>
+  <p>The file is checked locally against the published SHA-256 hash before it is saved.</p>
+  <div class="checksum-row">
+    <span>SHA-256</span>
+    <code>{{version.sha256}}</code>
+  </div>
+  <button id="downloadBtn" class="btn primary" data-url="{{version.download_url}}"
+    data-sha="{{version.sha256}}">Download and verify</button>
+  <div id="progressContainer" class="download-progress" hidden>
+    <p id="status" role="status" aria-live="polite">Preparing download…</p>
+    <progress id="progress" value="0" max="100"></progress>
   </div>
   <noscript>
     <p>Please enable JavaScript to download the asset.</p>

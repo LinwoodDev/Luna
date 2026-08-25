@@ -1,9 +1,10 @@
 {{#> layouts/asset.hbs activeTab="home"}}
-    <div class="container">
-        <section class="mb-md">
+    <div class="row wrap align-start gap-lg mb-xl">
+        <section class="flex min-w-md max-w-xl">
             {{{md asset.description}}}
         </section>
-        <section class="card paper">
+        <section class="card paper flex min-w-md">
+            <p class="subtitle">Latest release</p>
             <h2>{{asset.current_version.name}}</h2>
             <div>{{{md asset.current_version.changes}}}</div>
         </section>

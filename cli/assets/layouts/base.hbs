@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
     <meta name="description" content="{{info.summary}}" />
     <meta property="og:title" content="{{title}} | {{info.name}}" />
     <meta property="og:description" content="{{info.summary}}" />
@@ -11,22 +12,10 @@
     <title>{{> title}}</title>
     <base href="{{root}}" />
 
-    <!-- Your existing stylesheets -->
     <link rel="stylesheet" href="main.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="custom.css" />
 
-    <style>
-        @view-transition {
-            navigation: auto;
-        }
-
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-        }
-    </style>
 </head>
 
 <body>
@@ -34,95 +23,94 @@
     <main id="content">
         {{> @partial-block }}
     </main>
-    <footer>
-        <div class="row gap-xs justify-center p-xs wrap">
+    <footer class="container-lg row wrap align-center justify-between gap-md pv-lg">
+        <div>
+            <strong>{{info.name}}</strong>
+            <p class="m-none">Powered by Luna {{luna.version}}</p>
+        </div>
+        <nav class="row wrap" aria-label="Footer navigation">
             {{#if info.imprint}}
             <a href="{{info.imprint}}" target="_blank" rel="noopener noreferrer" class="btn">Imprint</a>
             {{/if}}
             {{#if info.privacy}}
             <a href="{{info.privacy}}" target="_blank" rel="noopener noreferrer" class="btn">Privacy Policy</a>
             {{/if}}
-        </div>
-        <div class="row gap-xs justify-center p-xs wrap">
             {{#each info.links}}
             <a href="{{this}}" target="_blank" rel="noopener noreferrer" class="btn">{{@key}}</a>
             {{/each}}
-        </div>
+        </nav>
     </footer>
-
     <script>
-        (function () {
-            const baseHref = document.querySelector('base')?.href || document.baseURI;
-            const contentEl = document.getElementById('content');
+        (() => {
+            const content = document.getElementById("content");
 
-            // Helper: load URL via fetch and extract #content HTML
-            async function fetchContent(url) {
-                const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const text = await res.text();
-                // parse and grab the new #content
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                return {
-                    html: doc.getElementById('content').innerHTML,
-                    title: doc.title,
-                };
+            async function loadPage(url) {
+                const response = await fetch(url, {
+                    headers: { "X-Requested-With": "fetch" },
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const html = await response.text();
+                const page = new DOMParser().parseFromString(html, "text/html");
+                const nextContent = page.getElementById("content");
+                if (!nextContent) throw new Error("Page content is missing");
+
+                return { html: nextContent.innerHTML, title: page.title };
             }
 
-            // Handle navigation: fetch + swap + history
-            async function navigateTo(url) {
-                // Use View Transition API if available
-                const useVT = typeof document.startViewTransition === 'function';
-
-                const performSwap = async () => {
-                    try {
-                        const { html, title } = await fetchContent(url);
-                        contentEl.innerHTML = html;
-                        document.title = title;
-
-                        // Re-execute scripts in the new content
-                        const scripts = contentEl.querySelectorAll('script');
-                        scripts.forEach(oldScript => {
-                            const newScript = document.createElement('script');
-                            Array.from(oldScript.attributes).forEach(attr => {
-                                newScript.setAttribute(attr.name, attr.value);
-                            });
-                            newScript.textContent = oldScript.textContent;
-                            oldScript.parentNode.replaceChild(newScript, oldScript);
-                        });
-                    } catch (err) {
-                        console.error('Navigation error:', err);
-                        location.href = url; // fallback to full reload
+            function activateScripts() {
+                content.querySelectorAll("script").forEach((script) => {
+                    const replacement = document.createElement("script");
+                    for (const attribute of script.attributes) {
+                        replacement.setAttribute(attribute.name, attribute.value);
                     }
-                };
+                    replacement.textContent = script.textContent;
+                    script.replaceWith(replacement);
+                });
+            }
 
-                if (useVT) {
-                    document.startViewTransition(performSwap);
-                } else {
-                    await performSwap();
+            async function navigate(url, push = false) {
+                try {
+                    const page = await loadPage(url);
+                    if (push) history.pushState(null, "", url);
+                    const update = () => {
+                        content.innerHTML = page.html;
+                        document.title = page.title;
+                        activateScripts();
+                    };
+
+                    if (document.startViewTransition) {
+                        await document.startViewTransition(update).finished;
+                    } else {
+                        update();
+                    }
+
+                    if (push) window.scrollTo({ top: 0, behavior: "instant" });
+                    content.setAttribute("tabindex", "-1");
+                    content.focus({ preventScroll: true });
+                } catch (error) {
+                    console.error("Client-side navigation failed; reloading the page.", error);
+                    window.location.assign(url);
                 }
             }
 
-            // Intercept all same-origin link clicks
-            document.body.addEventListener('click', e => {
-                const a = e.target.closest('a[href]');
-                if (!a) return;
-                const rawHref = a.getAttribute('href');
-                // ignore external links, anchors, or scripts
-                if (rawHref.startsWith('#') || a.target === '_blank') return;
-                const url = new URL(rawHref, baseHref);
-                console.log('Navigating to:', url.href, 'from:', location.href);
-                if (url.origin !== location.origin) return;
+            document.addEventListener("click", (event) => {
+                if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
-                e.preventDefault();
-                history.pushState(null, '', url.href);
-                navigateTo(url.href);
+                const link = event.target.closest?.("a[href]");
+                if (!link || link.target || link.download) return;
+
+                const href = link.getAttribute("href");
+                if (!href || href.startsWith("#")) return;
+
+                const url = new URL(href, document.baseURI);
+                if (url.origin !== window.location.origin || !["http:", "https:"].includes(url.protocol)) return;
+
+                event.preventDefault();
+                navigate(url.href, true);
             });
 
-            // Handle back/forward buttons
-            window.addEventListener('popstate', () => {
-                navigateTo(location.href);
-            });
+            window.addEventListener("popstate", () => navigate(window.location.href));
         })();
     </script>
 </body>

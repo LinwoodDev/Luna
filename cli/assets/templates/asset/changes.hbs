@@ -1,5 +1,5 @@
 {{#> layouts/asset.hbs activeTab="changes"}}
-<section class="card paper">
+<section class="card paper mb-md">
   {{#with asset.current_version}}
   <div class="row wrap align-start justify-between">
     <h2>{{this.name}}</h2>
@@ -11,7 +11,7 @@
 {{#if (len asset.previous_versions)}}
 <hr class="mv-md">
 {{/if}}
-<div class="container">
+<div>
   <section>
       <ul class="col gap-xs">
         {{#each asset.previous_versions}}

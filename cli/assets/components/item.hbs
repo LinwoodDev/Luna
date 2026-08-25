@@ -1,6 +1,9 @@
 <li class="card paper" {{#if id}}id="{{id}}"{{/if}} {{#if style}}style="{{style}}"{{/if}}>
-    <a class="search-link no-decoration text" href="{{href}}">
-        <p class="h4 search-title">{{title}}</p>
-        <p class="search-description">{{description}}</p>
+    <a class="search-link no-decoration text row align-center justify-between gap-sm w-full" href="{{href}}">
+        <div class="col gap-xs">
+            <span class="h4 bold search-title">{{title}}</span>
+            {{#if description}}<span class="search-description">{{description}}</span>{{/if}}
+        </div>
+        <span aria-hidden="true">→</span>
     </a>
 </li>

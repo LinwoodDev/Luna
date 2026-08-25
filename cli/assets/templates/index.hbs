@@ -3,22 +3,29 @@
     <div class="hero">
         <h1 class="hero-title">{{info.name}}</h1>
         <p class="hero-description">{{info.summary}}</p>
+        <div class="row wrap gap-sm mt-sm">
+            <a class="btn primary" href="assets.html">Explore assets</a>
+            <a class="btn secondary" href="search.html">Search registry</a>
+        </div>
     </div>
-    <hr class="mv-md">
+    <section class="row wrap gap-sm mb-xl" aria-label="Registry overview">
+        <a class="card paper no-decoration text col gap-xs flex min-w-sm" href="assets.html"><strong class="h2">{{asset_count}}</strong><span>Assets</span></a>
+        <a class="card paper no-decoration text col gap-xs flex min-w-sm" href="authors.html"><strong class="h2">{{author_count}}</strong><span>Authors</span></a>
+        <a class="card paper no-decoration text col gap-xs flex min-w-sm" href="categories.html"><strong class="h2">{{category_count}}</strong><span>Categories</span></a>
+    </section>
     {{#if info.description}}
-    <section class="big-section">
-        <h2>About</h2>
-        {{{md info.description}}}
+    <section class="big-section max-w-xl">
+        <h2>About this registry</h2>
+        <div>{{{md info.description}}}</div>
     </section>
     {{/if}}
-    <hr class="mv-md">
     {{> components/search.hbs }}
     <section class="big-section">
       <h2>Browse by category</h2>
       {{#if categories}}
-        <ul class="category-list">
+        <ul class="row wrap gap-sm p-none">
           {{#each categories}}
-            <li><a href="categories/{{slug this}}.html">{{this}}</a></li>
+            <li class="flex min-w-md"><a class="card secondary no-decoration text row align-center justify-between gap-sm w-full" href="categories/{{slug this}}.html"><span>{{this}}</span><span aria-hidden="true">→</span></a></li>
           {{/each}}
         </ul>
       {{else}}

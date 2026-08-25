@@ -1,3 +1,4 @@
+(() => {
 /**
  * Fetch with Cache API + conditional GET, but
  * fall back to a plain fetch() if anything blows up.
@@ -30,7 +31,6 @@ async function fetchCached(input, cacheName = "fetch-cache") {
     // One round‑trip: either 304 or fresh body
     const networkResponse = await fetch(req, { headers });
     if (networkResponse.status === 304 && cached) {
-      console.log("fetchCached:", input, "-> 304, returning cached response");
       return cached.clone();
     }
 
@@ -40,7 +40,6 @@ async function fetchCached(input, cacheName = "fetch-cache") {
         /* swallow */
       });
     }
-    console.log("fetchCached:", input, "->", networkResponse.status);
     return networkResponse;
   } catch (err) {
     console.warn("fetchCached failed, falling back to plain fetch", err);
@@ -55,27 +54,25 @@ function renderCategories(allCategories, included, excluded, onUpdate) {
   container.innerHTML = "";
   allCategories.forEach((cat) => {
     const row = document.createElement("div");
-    row.className = "row gap-xs align-center p-xs";
-    row.style.backgroundColor = "var(--ls-elevation)";
-    row.style.borderRadius = "0.5rem";
+    row.className = "row align-center gap-xs";
 
     const name = document.createElement("span");
     name.textContent = cat;
-    name.style.flex = "1";
+    name.className = "flex";
 
     const includeBtn = document.createElement("button");
     includeBtn.type = "button";
-    includeBtn.className = "btn";
-    includeBtn.style.padding = "2px 8px";
-    includeBtn.textContent = "+";
-    includeBtn.title = "Include category";
+    includeBtn.className = "btn secondary";
+    includeBtn.textContent = "Include";
+    includeBtn.title = `Include ${cat}`;
+    includeBtn.setAttribute("aria-label", `Include ${cat}`);
 
     const excludeBtn = document.createElement("button");
     excludeBtn.type = "button";
-    excludeBtn.className = "btn";
-    excludeBtn.style.padding = "2px 8px";
-    excludeBtn.textContent = "-";
-    excludeBtn.title = "Exclude category";
+    excludeBtn.className = "btn secondary";
+    excludeBtn.textContent = "Exclude";
+    excludeBtn.title = `Exclude ${cat}`;
+    excludeBtn.setAttribute("aria-label", `Exclude ${cat}`);
 
     const includeInput = document.createElement("input");
     includeInput.type = "hidden";
@@ -91,20 +88,18 @@ function renderCategories(allCategories, included, excluded, onUpdate) {
 
     const updateState = () => {
       if (!includeInput.disabled) {
-        includeBtn.classList.add("primary");
+        includeBtn.classList.add("active");
       } else {
-        includeBtn.classList.remove("primary");
+        includeBtn.classList.remove("active");
       }
+      includeBtn.setAttribute("aria-pressed", String(!includeInput.disabled));
 
       if (!excludeInput.disabled) {
-        excludeBtn.classList.add("primary");
-        excludeBtn.style.backgroundColor = "#ff4d4d";
-        excludeBtn.style.color = "white";
+        excludeBtn.classList.add("active");
       } else {
-        excludeBtn.classList.remove("primary");
-        excludeBtn.style.backgroundColor = "";
-        excludeBtn.style.color = "";
+        excludeBtn.classList.remove("active");
       }
+      excludeBtn.setAttribute("aria-pressed", String(!excludeInput.disabled));
     };
 
     updateState();
@@ -141,8 +136,29 @@ function renderCategories(allCategories, included, excluded, onUpdate) {
 
   const filtersEl = document.getElementById("search-filters");
   if (filtersEl) {
-    filtersEl.style.display = "block";
+    filtersEl.hidden = false;
   }
+}
+
+function populateResult(node, href, title, description) {
+  const link = node.querySelector(".search-link");
+  const titleElement = node.querySelector(".search-title");
+  if (!link || !titleElement) return false;
+
+  link.href = href;
+  titleElement.textContent = title;
+
+  let descriptionElement = node.querySelector(".search-description");
+  if (!descriptionElement && description) {
+    descriptionElement = document.createElement("span");
+    descriptionElement.className = "search-description";
+    titleElement.parentElement?.appendChild(descriptionElement);
+  }
+  if (descriptionElement) {
+    descriptionElement.textContent = description;
+    descriptionElement.hidden = !description;
+  }
+  return true;
 }
 
 async function initSearch() {
@@ -162,9 +178,15 @@ async function initSearch() {
 
   // keep form inputs filled after submit
   const searchInput = document.getElementById("search-input");
+  let searchTimer;
+  const scheduleSearch = () => {
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(performSearch, 120);
+  };
+
   if (searchInput) {
     searchInput.value = params.get("q") || "";
-    searchInput.addEventListener("input", performSearch);
+    searchInput.addEventListener("input", scheduleSearch);
   }
   const searchAuthors = document.getElementById("search-authors");
   if (searchAuthors) {
@@ -211,24 +233,8 @@ async function initSearch() {
     );
     window.history.replaceState({}, "", url);
 
-    if (
-      !query &&
-      includedCategories.length === 0 &&
-      excludedCategories.length === 0
-    ) {
-      // If no query and no filters, show all results (or handle as desired)
-      // For now, we proceed to show all results.
-      // If you want to show empty state instead, uncomment the lines below:
-      /*
-        statusEl.textContent = '';
-        resultsSection.style.display = 'none';
-        if (emptySection) emptySection.style.display = 'block';
-        return;
-        */
-    }
-
-    if (emptySection) emptySection.style.display = "none";
-    resultsSection.style.display = "block";
+    if (emptySection) emptySection.hidden = true;
+    resultsSection.hidden = false;
 
     const assetMatches = assetsData.filter((item) => {
       const itemCats = item.categories || [];
@@ -245,7 +251,7 @@ async function initSearch() {
 
       if (!query) return true;
 
-      const hay = [item.name, item.description || "", ...itemCats]
+      const hay = [item.name, item.summary || "", item.description || "", ...itemCats]
         .join(" ")
         .toLowerCase();
       return hay.includes(query);
@@ -253,10 +259,10 @@ async function initSearch() {
 
     const authorMatches = authorsData.filter((author) => {
       if (!query) return true;
-      return (
-        author.name.toLowerCase().includes(query) ||
-        author.display_name?.toLowerCase().includes(query)
-      );
+      return [author.name, author.display_name || "", author.description || ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
     });
 
     statusEl.textContent = "";
@@ -264,62 +270,67 @@ async function initSearch() {
     listEl.innerHTML = "";
 
     if (includeAssets && assetMatches.length) {
-      const h2 = document.createElement("h3");
-      h2.textContent = "Assets";
-      listEl.appendChild(h2);
+      const heading = document.createElement("li");
+      heading.className = "h3 bold";
+      heading.textContent = "Assets";
+      listEl.appendChild(heading);
       assetMatches.forEach((item) => {
         const node = template.cloneNode(true);
         node.id = "";
         node.style.display = "";
-        node.querySelector(".search-link").href =
+        const href =
           encodeURIComponent(item.author || "unknown") +
           "/" +
           encodeURIComponent(item.name);
-        node.querySelector(".search-title").textContent = item.name;
-        node.querySelector(".search-description").textContent = item.author
-          ? `by ${item.author}`
-          : "";
-        listEl.appendChild(node);
+        if (populateResult(node, href, item.name, item.author ? `by ${item.author}` : "")) {
+          listEl.appendChild(node);
+        }
       });
     }
 
     if (includeAuthors && authorMatches.length) {
-      const h2 = document.createElement("h3");
-      h2.textContent = "Authors";
-      listEl.appendChild(h2);
+      const heading = document.createElement("li");
+      heading.className = "h3 bold";
+      heading.textContent = "Authors";
+      listEl.appendChild(heading);
       authorMatches.forEach((author) => {
         const node = template.cloneNode(true);
         node.id = "";
         node.style.display = "";
-        node.querySelector(".search-link").href = encodeURIComponent(
-          author.name
-        );
-        node.querySelector(".search-title").textContent =
-          author.display_name || author.name;
-        node.querySelector(".search-description").textContent =
-          author.email || "";
-        listEl.appendChild(node);
+        if (populateResult(
+          node,
+          encodeURIComponent(author.name),
+          author.display_name || author.name,
+          author.email || "",
+        )) {
+          listEl.appendChild(node);
+        }
       });
     }
 
     const hasResults = (includeAssets && assetMatches.length > 0) || (includeAuthors && authorMatches.length > 0);
 
     if (!hasResults) {
-      resultsSection.style.display = 'none';
+      resultsSection.hidden = true;
       if (emptySection) {
-        emptySection.style.display = 'block';
+        emptySection.hidden = false;
         const h3 = emptySection.querySelector('h3');
         if (h3) h3.textContent = 'No results found';
         const p = emptySection.querySelector('p');
         if (p) p.textContent = 'Try different keywords or filters.';
       }
     } else {
-      statusEl.style.display = "none";
+      const resultCount =
+        (includeAssets ? assetMatches.length : 0) +
+        (includeAuthors ? authorMatches.length : 0);
+      statusEl.textContent = `${resultCount} ${resultCount === 1 ? "result" : "results"}`;
+      statusEl.style.display = "block";
     }
   }
 
   try {
     const res = await fetchCached("index.json");
+    if (!res.ok) throw new Error(`The registry returned HTTP ${res.status}.`);
     const data = await res.json();
     assetsData = data.assets || [];
     authorsData = data.authors || [];
@@ -341,9 +352,9 @@ async function initSearch() {
     performSearch();
   } catch (err) {
     console.error(err);
-    statusEl.textContent = "Error loading data.";
-  } finally {
-    // resultsSection.style.display = 'block'; // Handled in performSearch
+    resultsSection.hidden = false;
+    statusEl.style.display = "block";
+    statusEl.textContent = "The registry could not be loaded. Please try again.";
   }
 }
 
@@ -352,3 +363,4 @@ if (document.readyState === "loading") {
 } else {
   initSearch();
 }
+})();

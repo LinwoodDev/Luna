@@ -1,30 +1,28 @@
 {{#> layouts/main.hbs title=asset.name active_page="" }}
-<section class="pb-sm row wrap mb-md gap-sm" aria-label="Asset Header">
-  <div class="card paper p-sm min-w-md flex-3">
-    <div class="row wrap align-start justify-between gap-sm">
-      <h1 class="flex m-none">{{asset.name}}</h1>
-    </div>
-    <p class="m-none">by <a href="{{asset.author}}">{{asset.author}}</a></p>
+<section class="row wrap align-stretch gap-md mv-lg" aria-label="Asset header">
+  <div class="card paper col gap-sm flex min-w-md">
+    <h1 class="m-none">{{asset.name}}</h1>
+    <p class="m-none">by <a href="{{asset.author}}/">{{asset.author}}</a></p>
     {{#if asset.categories}}
       <div class="row gap-xs wrap align-center">
-        <p class="m-none">Categories:</p>
+        <span class="sr-only">Categories:</span>
         <ul class="row gap-xs align-center m-none p-none" style="list-style: none;">
           {{#each asset.categories}}
-            <li><a class="badge" href="categories/{{slug this}}.html">{{this}}</a></li>
+            <li><a class="btn secondary" href="categories/{{slug this}}.html">{{this}}</a></li>
           {{/each}}
         </ul>
       </div>
     {{/if}}
-    <nav aria-label="Asset navigation" class="row wrap justify-between gap-sm">
-      <ul class="row wrap gap-xs m-none p-none justify-between" style="list-style: none;">
-        <li><a class="btn {{#if (eq activeTab 'home')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}">Home</a></li>
+    <nav aria-label="Asset navigation" class="mt-sm">
+      <ul class="row wrap gap-xs p-none">
+        <li><a class="btn {{#if (eq activeTab 'home')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/">Overview</a></li>
         <li><a class="btn {{#if (eq activeTab 'changes')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/changes.html">Changes</a></li>
       </ul>
     </nav>
   </div>
-  <div class="card paper p-sm min-w-md flex-1 col">
+  <aside class="card paper col gap-sm min-w-md">
       <a class="btn primary {{#if (eq activeTab 'download')}}active{{/if}}" href="{{asset.author}}/{{asset.name}}/download.html">Download {{asset.current_version.name}}</a>
-    <ul class="col wrap gap-xs m-none p-none flex justify-end" style="list-style: none;">
+    <ul class="col gap-xs p-none">
       {{#if asset.website}}
         <li><a class="btn secondary" href="{{asset.website}}" target="_blank" rel="noopener noreferrer">Website</a></li>
       {{/if}}
@@ -35,7 +33,7 @@
         <li><a class="btn secondary" href="{{asset.sponsor}}" target="_blank" rel="noopener noreferrer">Sponsor</a></li>
       {{/if}}
     </ul>
-  </div>
+  </aside>
 </section>
 
 {{> @partial-block }}

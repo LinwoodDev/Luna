@@ -1,60 +1,109 @@
-const btn = document.getElementById("downloadBtn");
+(() => {
+const button = document.getElementById("downloadBtn");
 const status = document.getElementById("status");
 const progressBar = document.getElementById("progress");
-const container = document.getElementById("progressContainer");
-btn.addEventListener("click", async () => {
-  btn.disabled = true;
-  container.style.display = "block";
-  status.textContent = "Starting download...";
+const progressContainer = document.getElementById("progressContainer");
+
+function setStatus(message, state = "working") {
+  status.textContent = message;
+  status.dataset.state = state;
+}
+
+function downloadFilename(url) {
   try {
-    const url = btn.getAttribute("data-url");
-    const expectedHash = btn.getAttribute("data-sha");
-    const resp = await fetch(url);
-    const reader = resp.body.getReader();
-    const contentLength = parseInt(resp.headers.get("Content-Length")) || 0;
-    let received = 0;
-    const chunks = [];
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      received += value.length;
-      const percent = contentLength
-        ? Math.floor((received / contentLength) * 100)
-        : 0;
-      progressBar.value = percent;
-      status.textContent = `Downloaded ${percent}%`;
+    const pathname = new URL(url, window.location.href).pathname;
+    return decodeURIComponent(pathname.split("/").filter(Boolean).pop()) || "download";
+  } catch {
+    return "download";
+  }
+}
+
+async function startDownload() {
+  const url = button?.dataset.url;
+  const expectedHash = button?.dataset.sha?.toLowerCase();
+  if (!button || !status || !progressBar || !progressContainer || !url || !expectedHash) {
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Downloading…";
+  progressContainer.hidden = false;
+  progressBar.removeAttribute("value");
+  setStatus("Connecting to the download source…");
+
+  try {
+    if (!window.crypto?.subtle) {
+      throw new Error("Secure checksum verification is not available in this browser.");
     }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`The download server returned HTTP ${response.status}.`);
+    }
+
+    const contentLength = Number(response.headers.get("Content-Length")) || 0;
+    const chunks = [];
+    let received = 0;
+
+    if (response.body) {
+      const reader = response.body.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.byteLength;
+
+        if (contentLength > 0) {
+          const percent = Math.min(100, Math.round((received / contentLength) * 100));
+          progressBar.value = percent;
+          setStatus(`Downloading… ${percent}%`);
+        } else {
+          setStatus(`Downloaded ${(received / 1024 / 1024).toFixed(1)} MB…`);
+        }
+      }
+    } else {
+      const data = new Uint8Array(await response.arrayBuffer());
+      chunks.push(data);
+      received = data.byteLength;
+    }
+
     const buffer = new Uint8Array(received);
     let position = 0;
-    chunks.forEach((chunk) => {
+    for (const chunk of chunks) {
       buffer.set(chunk, position);
-      position += chunk.length;
-    });
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    if (hashHex !== expectedHash) {
-      status.textContent = `Checksum mismatch! Expected ${expectedHash}, got ${hashHex}.`;
-      progressBar.value = 0;
-      return;
+      position += chunk.byteLength;
     }
-    status.textContent = "Checksum verified, preparing file...";
-    const blob = new Blob([buffer]);
+
+    setStatus("Verifying SHA-256 checksum…");
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+    const actualHash = Array.from(new Uint8Array(hashBuffer), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+
+    if (actualHash !== expectedHash) {
+      throw new Error("Checksum verification failed. The file was not saved.");
+    }
+
+    const objectUrl = URL.createObjectURL(new Blob([buffer]));
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = url.split("/").pop();
+    link.href = objectUrl;
+    link.download = downloadFilename(url);
     document.body.appendChild(link);
     link.click();
     link.remove();
-    status.textContent = "Download complete!";
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+
+    progressBar.value = 100;
+    setStatus("Verified. Your download is ready.", "success");
+    button.textContent = "Download again";
   } catch (error) {
-    status.textContent = "Error during download: " + error.message;
-    console.error("Download error:", error);
+    progressBar.value = 0;
+    setStatus(error instanceof Error ? error.message : "The download failed.", "error");
+    button.textContent = "Try again";
   } finally {
-    btn.disabled = false;
+    button.disabled = false;
   }
-});
-window.addEventListener("load", () => btn.click());
+}
+
+button?.addEventListener("click", startDownload);
+})();

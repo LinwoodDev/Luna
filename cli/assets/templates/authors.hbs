@@ -1,10 +1,11 @@
 {{#> layouts/main.hbs title="Authors" active_page="authors"}}
 <div class="container">
-    <section class="section">
+    <section class="long-section">
         <h1>Authors</h1>
+        <p>{{total_count}} registered {{#if (eq total_count 1)}}author{{else}}authors{{/if}}.</p>
     </section>
     <section class="section mt-md">
-        <ul class="col justify-center wrap gap-sm">
+        <ul class="col gap-sm p-none">
             {{#each authors}}
             {{> components/item.hbs href=(concat this.name) title=(display this) description=this.description }}
             {{else}}
@@ -13,16 +14,15 @@
             </li>
             {{/each}}
         </ul>
-        <div class="row justify-center align-center gap-sm mt-md wrap">
-            {{#if (gt current_page 1)}}
-            <a class="btn secondary"
-                href="{{#if (eq current_page 1)}}authors.html{{else}}authors/{{current_page}}.html{{/if}}">Back</a>
+        <nav class="row wrap align-center justify-center gap-md mv-lg" aria-label="Authors pagination">
+            {{#if previous_page_path}}
+            <a class="btn secondary" href="{{previous_page_path}}">Previous</a>
             {{/if}}
-            <span class="text">Page {{current_page}} of {{last_page}}</span>
-            {{#if (lt current_page last_page)}}
-            <a class="btn secondary" href="authors/{{inc current_page}}.html">Next</a>
+            <span class="text">Page {{current_page}} of {{last_page}}{{#if page_start}} · {{page_start}}–{{page_end}} of {{total_count}}{{/if}}</span>
+            {{#if next_page_path}}
+            <a class="btn secondary" href="{{next_page_path}}">Next</a>
             {{/if}}
-        </div>
+        </nav>
     </section>
 </div>
 {{/layouts/main.hbs}}

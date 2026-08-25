@@ -30,6 +30,10 @@ pub enum DocsError {
         expected: String,
         actual: String,
     },
+    #[error("Page size must be greater than zero")]
+    InvalidPageSize,
+    #[error("Index serialization failed: {0}")]
+    Serialize(#[from] serde_json::Error),
 }
 
 #[derive(ValueEnum, Clone, Debug, Default, PartialEq)]
@@ -312,6 +316,64 @@ fn slugify<S: AsRef<str>>(s: S) -> String {
     out.trim_matches('-').to_string()
 }
 
+fn pages<T>(items: &[T], page_size: usize) -> Vec<&[T]> {
+    if items.is_empty() {
+        vec![&[]]
+    } else {
+        items.chunks(page_size).collect()
+    }
+}
+
+fn pagination_paths(
+    base: &str,
+    index: usize,
+    page_count: usize,
+) -> (String, Option<String>, Option<String>) {
+    let current = if index == 0 {
+        format!("{base}.html")
+    } else {
+        format!("{base}/{}.html", index + 1)
+    };
+    let previous = (index > 0).then(|| {
+        if index == 1 {
+            format!("{base}.html")
+        } else {
+            format!("{base}/{index}.html")
+        }
+    });
+    let next = (index + 1 < page_count).then(|| format!("{base}/{}.html", index + 2));
+    (current, previous, next)
+}
+
+struct PaginationContext {
+    index: usize,
+    page_count: usize,
+    page_size: usize,
+    page_len: usize,
+    total_count: usize,
+    previous: Option<String>,
+    next: Option<String>,
+}
+
+fn add_pagination_context(context: &mut Map<String, Value>, pagination: PaginationContext) {
+    context.insert("current_page".to_string(), json!(pagination.index + 1));
+    context.insert("last_page".to_string(), json!(pagination.page_count));
+    context.insert("previous_page_path".to_string(), json!(pagination.previous));
+    context.insert("next_page_path".to_string(), json!(pagination.next));
+    context.insert("total_count".to_string(), json!(pagination.total_count));
+    context.insert(
+        "page_start".to_string(),
+        json!((pagination.page_len > 0).then_some(pagination.index * pagination.page_size + 1)),
+    );
+    context.insert(
+        "page_end".to_string(),
+        json!(
+            (pagination.page_len > 0)
+                .then_some(pagination.index * pagination.page_size + pagination.page_len)
+        ),
+    );
+}
+
 pub fn generate_docs(
     data: &RepositoryData,
     output: String,
@@ -319,6 +381,10 @@ pub fn generate_docs(
     bundle: BundleStrategy,
     custom_root: Option<String>,
 ) -> Result<(), DocsError> {
+    if page_size == 0 {
+        return Err(DocsError::InvalidPageSize);
+    }
+
     let output_path = Path::new(&output);
     if !output_path.exists() {
         fs::create_dir_all(output_path)?;
@@ -330,7 +396,6 @@ pub fn generate_docs(
         bundle_assets(&mut data, output_path, &bundle)?;
     }
 
-    let _ = page_size;
     let mut router = LunaRouter::new();
     let root = "/".to_string();
     let custom_root = custom_root.map(PathBuf::from);
@@ -346,7 +411,7 @@ pub fn generate_docs(
             .add_context_route(path, &engine, template, context)
             .map_err(|e| DocsError::Render(path.to_string(), e))
     };
-    router.add_simple_route("index.json", data.to_index().unwrap());
+    router.add_simple_route("index.json", data.to_index()?);
     let mut base_context = Map::new();
     base_context.insert("info".to_string(), json!(data.info));
     base_context.insert("root".to_string(), json!(root));
@@ -383,6 +448,9 @@ pub fn generate_docs(
         categories_summaries.push(m);
     }
     base_context.insert("categories".to_string(), json!(all_categories));
+    base_context.insert("asset_count".to_string(), json!(data.assets.len()));
+    base_context.insert("author_count".to_string(), json!(data.authors.len()));
+    base_context.insert("category_count".to_string(), json!(all_categories.len()));
 
     let context = &Value::Object(base_context.clone());
     add_route(&mut router, "index.html", "templates/index.hbs", context)?;
@@ -411,60 +479,73 @@ pub fn generate_docs(
             .iter()
             .filter(|a| a.categories.contains(cat))
             .collect();
-        let mut chunks = assets_for_cat.chunks(page_size).collect::<Vec<_>>();
-        if chunks.is_empty() {
-            chunks.push(&[]);
-        }
+        let chunks = pages(&assets_for_cat, page_size);
         let page_count = chunks.len();
         for (i, chunk) in chunks.into_iter().enumerate() {
             let mut ctx = base_context.clone();
             let slug = slugify(cat);
-            // pagination helpers and counts
-            let assets_count = chunk.len();
+            let base = format!("categories/{slug}");
+            let (path, previous, next) = pagination_paths(&base, i, page_count);
             ctx.insert("category".to_string(), json!({ "name": cat }));
             ctx.insert("assets".to_string(), json!(chunk));
-            ctx.insert("assets_count".to_string(), json!(assets_count));
-            ctx.insert("current_page".to_string(), json!(i + 1));
-            ctx.insert("last_page".to_string(), json!(page_count));
-            let path = if i == 0 {
-                format!("categories/{}.html", slug)
-            } else {
-                format!("categories/{}/{}.html", slug, i)
-            };
+            add_pagination_context(
+                &mut ctx,
+                PaginationContext {
+                    index: i,
+                    page_count,
+                    page_size,
+                    page_len: chunk.len(),
+                    total_count: assets_for_cat.len(),
+                    previous,
+                    next,
+                },
+            );
             let v = &Value::Object(ctx);
             add_route(&mut router, &path, "templates/category.hbs", v)?;
         }
     }
 
-    let asset_pages = data.assets.chunks(page_size);
+    let asset_pages = pages(&data.assets, page_size);
     let page_count = asset_pages.len();
-    for (i, assets) in asset_pages.enumerate() {
+    for (i, assets) in asset_pages.into_iter().enumerate() {
         let mut asset_context = base_context.clone();
         asset_context.insert("assets".to_string(), json!(assets));
-        asset_context.insert("current_page".to_string(), json!(i + 1));
-        asset_context.insert("last_page".to_string(), json!(page_count));
+        let (path, previous, next) = pagination_paths("assets", i, page_count);
+        add_pagination_context(
+            &mut asset_context,
+            PaginationContext {
+                index: i,
+                page_count,
+                page_size,
+                page_len: assets.len(),
+                total_count: data.assets.len(),
+                previous,
+                next,
+            },
+        );
         let context = &Value::Object(asset_context);
-        let path = if i == 0 {
-            "assets.html".to_string()
-        } else {
-            format!("assets/{i}.html")
-        };
         add_route(&mut router, &path, "templates/assets.hbs", context)?;
     }
 
-    let author_pages = data.authors.chunks(page_size);
+    let author_pages = pages(&data.authors, page_size);
     let page_count = author_pages.len();
-    for (i, authors) in author_pages.enumerate() {
-        let mut asset_context = base_context.clone();
-        asset_context.insert("authors".to_string(), json!(authors));
-        asset_context.insert("current_page".to_string(), json!(i + 1));
-        asset_context.insert("last_page".to_string(), json!(page_count));
-        let context = &Value::Object(asset_context);
-        let path = if i == 0 {
-            "authors.html".to_string()
-        } else {
-            format!("authors/{i}.html")
-        };
+    for (i, authors) in author_pages.into_iter().enumerate() {
+        let mut author_context = base_context.clone();
+        author_context.insert("authors".to_string(), json!(authors));
+        let (path, previous, next) = pagination_paths("authors", i, page_count);
+        add_pagination_context(
+            &mut author_context,
+            PaginationContext {
+                index: i,
+                page_count,
+                page_size,
+                page_len: authors.len(),
+                total_count: data.authors.len(),
+                previous,
+                next,
+            },
+        );
+        let context = &Value::Object(author_context);
         add_route(&mut router, &path, "templates/authors.hbs", context)?;
     }
 
@@ -500,30 +581,29 @@ pub fn generate_docs(
                 &format!("templates/asset/{page}.hbs"),
                 context,
             )?;
-            let mut build_download_page =
-                |path: &str, version: &Version| -> Result<(), DocsError> {
-                    let mut version_context = base_context.clone();
-                    version_context.insert("asset".to_string(), json!(asset));
-                    version_context.insert("version".to_string(), json!(version));
-                    let v_ctx = &Value::Object(version_context);
-                    add_route(&mut router, path, "templates/asset/download.hbs", v_ctx)?;
-                    Ok(())
-                };
+        }
+
+        let mut build_download_page = |path: &str, version: &Version| -> Result<(), DocsError> {
+            let mut version_context = base_context.clone();
+            version_context.insert("asset".to_string(), json!(asset));
+            version_context.insert("version".to_string(), json!(version));
+            let v_ctx = &Value::Object(version_context);
+            add_route(&mut router, path, "templates/asset/download.hbs", v_ctx)?;
+            Ok(())
+        };
+        build_download_page(
+            &format!("{}/{}/download.html", asset.author, asset.name),
+            &asset.current_version,
+        )?;
+        for version in std::iter::once(&asset.current_version).chain(asset.previous_versions.iter())
+        {
             build_download_page(
-                &format!("{}/{}/download.html", asset.author, asset.name),
-                &asset.current_version,
+                &format!(
+                    "{}/{}/download/{}.html",
+                    asset.author, asset.name, version.name
+                ),
+                version,
             )?;
-            for version in
-                std::iter::once(&asset.current_version).chain(asset.previous_versions.iter())
-            {
-                build_download_page(
-                    &format!(
-                        "{}/{}/download/{}.html",
-                        asset.author, asset.name, version.name
-                    ),
-                    version,
-                )?;
-            }
         }
     }
 
@@ -561,4 +641,57 @@ fn copy_public(output: &str, custom_root: Option<&Path>) -> Result<(), DocsError
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_collections_still_have_one_page() {
+        let items: Vec<String> = Vec::new();
+
+        assert_eq!(pages(&items, 20), vec![&[] as &[String]]);
+    }
+
+    #[test]
+    fn pagination_paths_use_human_page_numbers() {
+        assert_eq!(
+            pagination_paths("assets", 0, 3),
+            (
+                "assets.html".to_string(),
+                None,
+                Some("assets/2.html".to_string())
+            )
+        );
+        assert_eq!(
+            pagination_paths("assets", 1, 3),
+            (
+                "assets/2.html".to_string(),
+                Some("assets.html".to_string()),
+                Some("assets/3.html".to_string())
+            )
+        );
+        assert_eq!(
+            pagination_paths("categories/illustration", 2, 3),
+            (
+                "categories/illustration/3.html".to_string(),
+                Some("categories/illustration/2.html".to_string()),
+                None
+            )
+        );
+    }
+
+    #[test]
+    fn rejects_zero_page_size() {
+        let result = generate_docs(
+            &RepositoryData::default(),
+            "unused".to_string(),
+            0,
+            BundleStrategy::None,
+            None,
+        );
+
+        assert!(matches!(result, Err(DocsError::InvalidPageSize)));
+    }
 }

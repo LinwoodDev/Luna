@@ -1,12 +1,13 @@
 {{#> layouts/base.hbs}}
 {{#*inline "title"}}{{title}} | {{info.name}}{{/inline}}
 <header class="navbar-lg sticky">
-    <a href="./" class="navbar-title">{{info.name}} | Luna</a>
-    <nav class="navbar-items" aria-label="Main navigation">
-        <a class="btn secondary {{#if (eq active_page 'home')}}active{{/if}}" href="./">Home</a>
-        <a class="btn secondary {{#if (eq active_page 'assets')}}active{{/if}}" href="assets.html">Assets</a>
-        <a class="btn secondary {{#if (eq active_page 'authors')}}active{{/if}}" href="authors.html">Authors</a>
-        <a class="btn secondary {{#if (eq active_page 'search')}}active{{/if}}" href="search.html">Search</a>
+    <a href="./" class="navbar-title">{{info.name}}</a>
+    <nav class="navbar-items overflow-x" aria-label="Main navigation">
+        <a class="btn secondary {{#if (eq active_page 'home')}}active{{/if}}" {{#if (eq active_page 'home')}}aria-current="page"{{/if}} href="./">Home</a>
+        <a class="btn secondary {{#if (eq active_page 'assets')}}active{{/if}}" {{#if (eq active_page 'assets')}}aria-current="page"{{/if}} href="assets.html">Assets</a>
+        <a class="btn secondary {{#if (eq active_page 'authors')}}active{{/if}}" {{#if (eq active_page 'authors')}}aria-current="page"{{/if}} href="authors.html">Authors</a>
+        <a class="btn secondary {{#if (eq active_page 'categories')}}active{{/if}}" {{#if (eq active_page 'categories')}}aria-current="page"{{/if}} href="categories.html">Categories</a>
+        <a class="btn secondary {{#if (eq active_page 'search')}}active{{/if}}" {{#if (eq active_page 'search')}}aria-current="page"{{/if}} href="search.html">Search</a>
         <div class="h-divider"></div>
         {{#each info.navbar_links}}
         <a class="btn secondary" href="{{this}}" target="_blank" rel="noopener noreferrer">{{@key}}</a>
